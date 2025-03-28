@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DICOM Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>DICOM Files Metadata</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Patient Name</th>
+                <th>Modality</th>
+                <th>Study Date</th>
+                <th>Series Description</th>
+                <th>Study Instance UID</th>
+            </tr>
+        </thead>
+        <tbody id="dicomTable">
+            <!-- Data will be populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch DICOM metadata from API
+        fetch('/parse_dicom')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('dicomTable');
+                
+                // Clear existing content
+                tableBody.innerHTML = '';
+                
+                // Add each DICOM file to the table
+                data.forEach(file => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${file.patient_id}</td>
+                        <td>${file.patient_name}</td>
+                        <td>${file.modality}</td>
+                        <td>${file.study_date}</td>
+                        <td>${file.series_description}</td>
+                        <td>${file.study_instance_uid}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching DICOM data:', error);
+                document.getElementById('dicomTable').innerHTML = 
+                    `<tr><td colspan="6">Error loading DICOM data: ${error.message}</td></tr>`;
+            });
+    </script>
+</body>
+</html>

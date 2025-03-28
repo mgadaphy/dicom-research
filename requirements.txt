@@ -3,3 +3,7 @@ fastapi
 pydicom
 sqlalchemy
 psycopg2-binary
+numpy
+scipy
+pydicom
+
