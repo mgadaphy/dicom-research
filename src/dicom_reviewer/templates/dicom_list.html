@@ -35,6 +35,10 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            margin-right: 5px;
+        }
+        .action-btn.annotate {
+            background-color: #2196F3;
         }
     </style>
 </head>
@@ -78,6 +82,7 @@
                         <td>${file.series_description}</td>
                         <td>
                             <a href="/viewer?studyUid=${encodeURIComponent(file.study_instance_uid)}" class="action-btn">View</a>
+                            <a href="/annotate?studyUid=${encodeURIComponent(file.study_instance_uid)}" class="action-btn annotate">Annotate</a>
                         </td>
                     `;
                     

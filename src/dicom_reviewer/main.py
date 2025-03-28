@@ -4,6 +4,9 @@ import pydicom
 from PIL import Image
 import numpy as np
 import io
+import json
+import uuid
+from datetime import datetime
 from src.dicom_reviewer.parsers.dicom_parser import DICOMParser
 from src.dicom_reviewer.schemas.dicom_metadata import DICOMMetadata
 
@@ -11,6 +14,9 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # DICOM file directory
 DICOM_DIR = '/home/mogadaphy/dicom-research/dicom-files'
+
+# Initialize an in-memory store for annotations (would be a database in production)
+annotations_store = {}
 
 @app.route('/')
 def hello_world():
@@ -44,6 +50,15 @@ def dicom_list():
 
 @app.route('/viewer')
 def viewer():
+    study_uid = request.args.get('studyUid')
+    
+    if not study_uid:
+        return "Study UID is required", 400
+        
+    return render_template('viewer.html')
+
+@app.route('/annotate')
+def annotate_viewer():
     study_uid = request.args.get('studyUid')
     
     if not study_uid:
@@ -207,6 +222,46 @@ def get_dicom_file(study_uid, series_uid, instance_uid):
     except Exception as e:
         print(f"General error in get_dicom_file: {e}")
         return str(e), 500
+
+@app.route('/api/annotations', methods=['POST'])
+def create_annotation():
+    try:
+        data = request.json
+        
+        # Add a unique ID if not provided
+        if 'id' not in data:
+            data['id'] = str(uuid.uuid4())
+            
+        # Add timestamp if not provided
+        if 'timestamp' not in data:
+            data['timestamp'] = datetime.now().isoformat()
+            
+        # Get study ID
+        study_uid = data.get('studyUid')
+        
+        if not study_uid:
+            return jsonify({"error": "Study UID is required"}), 400
+            
+        # Initialize study annotations if needed
+        if study_uid not in annotations_store:
+            annotations_store[study_uid] = []
+            
+        # Add to store
+        annotations_store[study_uid].append(data)
+        
+        return jsonify({"success": True, "id": data['id']}), 201
+    except Exception as e:
+        print(f"Error creating annotation: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/annotations/<study_uid>', methods=['GET'])
+def get_study_annotations(study_uid):
+    try:
+        # Return annotations for this study
+        return jsonify(annotations_store.get(study_uid, []))
+    except Exception as e:
+        print(f"Error getting annotations: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

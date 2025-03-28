@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple DICOM Viewer</title>
+    <title>DICOM Viewer with Annotations</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/annotation.css') }}">
 </head>
 <body>
     <div class="container">
@@ -15,8 +16,9 @@
                 <p><strong>Modality:</strong> <span id="modality">Loading...</span></p>
                 <p><strong>Series Description:</strong> <span id="series-description">Loading...</span></p>
             </div>
+            
             <div class="controls">
-                <h3>Controls</h3>
+                <h3>Viewer Controls</h3>
                 <button id="zoom-in">Zoom In</button>
                 <button id="zoom-out">Zoom Out</button>
                 <button id="reset-view">Reset View</button>
@@ -27,14 +29,69 @@
                     <input type="range" id="window-center" min="-1000" max="3000" value="40">
                 </div>
             </div>
+            
+            <div class="annotation-tools">
+                <h3>Annotation Tools</h3>
+                <div class="tool-buttons">
+                    <button id="tool-rectangle" class="tool-button">Rectangle</button>
+                    <button id="tool-circle" class="tool-button">Circle</button>
+                    <button id="tool-line" class="tool-button">Line</button>
+                    <button id="tool-arrow" class="tool-button">Arrow</button>
+                    <button id="tool-text" class="tool-button">Text</button>
+                </div>
+                
+                <div class="tool-options">
+                    <label for="annotation-color">Color:</label>
+                    <select id="annotation-color">
+                        <option value="red">Red</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="yellow">Yellow</option>
+                    </select>
+                    
+                    <label for="annotation-width">Width:</label>
+                    <select id="annotation-width">
+                        <option value="1">Thin</option>
+                        <option value="3" selected>Normal</option>
+                        <option value="5">Thick</option>
+                    </select>
+                </div>
+                
+                <div id="annotation-form" class="annotation-form" style="display: none;">
+                    <h4>Annotation Details</h4>
+                    <label for="finding">Finding:</label>
+                    <input type="text" id="finding" placeholder="e.g., Tumor, Fracture">
+                    
+                    <label for="confidence">Confidence (1-10):</label>
+                    <input type="range" id="confidence" min="1" max="10" value="7">
+                    <span id="confidence-value">7</span>
+                    
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" rows="3" placeholder="Additional observations..."></textarea>
+                    
+                    <div class="form-buttons">
+                        <button id="save-annotation">Save</button>
+                        <button id="cancel-annotation">Cancel</button>
+                    </div>
+                </div>
+                
+                <div class="saved-annotations">
+                    <h3>Saved Annotations <button id="refresh-annotations">Refresh</button></h3>
+                    <div id="annotation-list"></div>
+                </div>
+            </div>
         </div>
+        
         <div class="main-content">
             <div class="viewer-container">
-                <img id="dicom-preview" alt="DICOM Preview" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="canvas-container">
+                    <img id="dicom-preview" alt="DICOM Preview">
+                    <canvas id="annotation-canvas" class="annotation-layer"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/simple-viewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/annotation-viewer.js') }}"></script>
 </body>
 </html>
