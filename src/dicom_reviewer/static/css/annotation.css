@@ -5,6 +5,55 @@
     border-top: 1px solid #ddd;
 }
 
+.annotation-management {
+    margin-bottom: 15px;
+}
+
+.primary-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#annotation-status {
+    font-style: italic;
+    color: #666;
+    margin: 5px 0;
+}
+
+.shape-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.tool-action-button {
+    flex: 1;
+    padding: 8px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.tool-action-button.active {
+    background-color: #2196F3;
+    color: white;
+}
+
+#shape-count {
+    font-weight: bold;
+}
+
 .tool-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -28,6 +77,11 @@
     background-color: #4CAF50;
     color: white;
     border-color: #2E7D32;
+}
+
+.tool-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .tool-options {
@@ -138,6 +192,12 @@
     border-radius: 4px;
 }
 
+.annotation-item.active {
+    background-color: #e8f5e9;
+    border-left: 4px solid #2196F3;
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
 .annotation-item h4 {
     margin-top: 0;
     margin-bottom: 5px;
@@ -145,6 +205,30 @@
 
 .annotation-item p {
     margin: 5px 0;
+}
+
+.annotation-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.annotation-actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.edit-annotation {
+    background-color: #2196F3;
+    color: white;
+}
+
+.delete-annotation {
+    background-color: #f44336;
+    color: white;
 }
 
 /* Canvas Container for Annotations */
@@ -174,4 +258,9 @@
 #annotation-canvas.drawing {
     pointer-events: auto;
     cursor: crosshair;
+}
+
+#annotation-canvas.removing {
+    pointer-events: auto;
+    cursor: not-allowed;
 }

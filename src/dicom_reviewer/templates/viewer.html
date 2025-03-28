@@ -31,30 +31,45 @@
             </div>
             
             <div class="annotation-tools">
-                <h3>Annotation Tools</h3>
-                <div class="tool-buttons">
-                    <button id="tool-rectangle" class="tool-button">Rectangle</button>
-                    <button id="tool-circle" class="tool-button">Circle</button>
-                    <button id="tool-line" class="tool-button">Line</button>
-                    <button id="tool-arrow" class="tool-button">Arrow</button>
-                    <button id="tool-text" class="tool-button">Text</button>
+                <h3>Annotation</h3>
+                <div class="annotation-management">
+                    <button id="new-annotation" class="primary-button">New Annotation</button>
+                    <p id="annotation-status"></p>
                 </div>
                 
-                <div class="tool-options">
-                    <label for="annotation-color">Color:</label>
-                    <select id="annotation-color">
-                        <option value="red">Red</option>
-                        <option value="green">Green</option>
-                        <option value="blue">Blue</option>
-                        <option value="yellow">Yellow</option>
-                    </select>
+                <div id="shape-tools" style="display: none;">
+                    <h4>Shape Management</h4>
+                    <div class="shape-controls">
+                        <button id="add-shape" class="tool-action-button">Add Shape</button>
+                        <button id="remove-shape" class="tool-action-button">Remove Shape</button>
+                        <span>Shapes: <span id="shape-count">0</span></span>
+                    </div>
                     
-                    <label for="annotation-width">Width:</label>
-                    <select id="annotation-width">
-                        <option value="1">Thin</option>
-                        <option value="3" selected>Normal</option>
-                        <option value="5">Thick</option>
-                    </select>
+                    <h4>Drawing Tools</h4>
+                    <div class="tool-buttons">
+                        <button id="tool-rectangle" class="tool-button">Rectangle</button>
+                        <button id="tool-circle" class="tool-button">Circle</button>
+                        <button id="tool-line" class="tool-button">Line</button>
+                        <button id="tool-arrow" class="tool-button">Arrow</button>
+                        <button id="tool-text" class="tool-button">Text</button>
+                    </div>
+                    
+                    <div class="tool-options">
+                        <label for="annotation-color">Color:</label>
+                        <select id="annotation-color">
+                            <option value="red">Red</option>
+                            <option value="green">Green</option>
+                            <option value="blue">Blue</option>
+                            <option value="yellow">Yellow</option>
+                        </select>
+                        
+                        <label for="annotation-width">Width:</label>
+                        <select id="annotation-width">
+                            <option value="1">Thin</option>
+                            <option value="3" selected>Normal</option>
+                            <option value="5">Thick</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div id="annotation-form" class="annotation-form" style="display: none;">

@@ -246,8 +246,16 @@ def create_annotation():
         if study_uid not in annotations_store:
             annotations_store[study_uid] = []
             
-        # Add to store
-        annotations_store[study_uid].append(data)
+        # Check if this is an update to an existing annotation
+        existing_index = next((i for i, a in enumerate(annotations_store[study_uid]) 
+                              if a.get('id') == data.get('id')), -1)
+        
+        if existing_index >= 0:
+            # Update existing annotation
+            annotations_store[study_uid][existing_index] = data
+        else:
+            # Add new annotation
+            annotations_store[study_uid].append(data)
         
         return jsonify({"success": True, "id": data['id']}), 201
     except Exception as e:
@@ -261,6 +269,27 @@ def get_study_annotations(study_uid):
         return jsonify(annotations_store.get(study_uid, []))
     except Exception as e:
         print(f"Error getting annotations: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/annotations/<study_uid>/<annotation_id>', methods=['DELETE'])
+def delete_annotation(study_uid, annotation_id):
+    try:
+        if study_uid in annotations_store:
+            # Filter out the annotation with the given ID
+            original_count = len(annotations_store[study_uid])
+            annotations_store[study_uid] = [
+                a for a in annotations_store[study_uid] if a.get('id') != annotation_id
+            ]
+            
+            # Check if an annotation was removed
+            if len(annotations_store[study_uid]) < original_count:
+                return jsonify({"success": True})
+            else:
+                return jsonify({"error": "Annotation not found"}), 404
+        else:
+            return jsonify({"error": "Study not found"}), 404
+    except Exception as e:
+        print(f"Error deleting annotation: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
