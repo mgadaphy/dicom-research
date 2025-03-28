@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentAnnotation = null;  // The annotation being edited
     let tempShape = null;          // The shape being drawn
     let studyUid = null;
-    let reviewerId = 'reviewer1';  // This would come from authentication in a real system
+    let reviewerId = document.getElementById('current-username').value; // Get username from hidden input field
     let activeAnnotationId = null; // ID of the annotation currently being edited
     
     // References to DOM elements

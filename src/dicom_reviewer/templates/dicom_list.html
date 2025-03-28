@@ -5,27 +5,65 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
         }
+        
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        
+        .container {
+            padding: 20px;
+        }
+        
         table {
             border-collapse: collapse;
             width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
         }
+        
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
+        
         th {
             background-color: #f2f2f2;
+            font-weight: 600;
+            color: #333;
         }
+        
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+        
         tr:hover {
             background-color: #f1f1f1;
             cursor: pointer;
         }
+        
         .action-btn {
             padding: 6px 12px;
             background-color: #4CAF50;
@@ -37,28 +75,61 @@
             display: inline-block;
             margin-right: 5px;
         }
+        
         .action-btn.annotate {
             background-color: #2196F3;
+        }
+        
+        .user-info {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        
+        .user-info h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <h1>DICOM Files Metadata</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Patient ID</th>
-                <th>Patient Name</th>
-                <th>Modality</th>
-                <th>Study Date</th>
-                <th>Series Description</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="dicomTable">
-            <!-- Data will be populated by JavaScript -->
-        </tbody>
-    </table>
+    <div class="header">
+        <h1>DICOM Multi-Reviewer System</h1>
+        <div class="header-links">
+            <a href="{{ url_for('dicom_list') }}">DICOM List</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="user-info">
+            <h2>Welcome, {{ current_user.full_name }}</h2>
+            <p>You are logged in as: <strong>{{ current_user.username }}</strong> ({{ current_user.role|title }})</p>
+        </div>
+        
+        <h1>DICOM Files Metadata</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Modality</th>
+                    <th>Study Date</th>
+                    <th>Series Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="dicomTable">
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
 
     <script>
         // Fetch DICOM metadata from API

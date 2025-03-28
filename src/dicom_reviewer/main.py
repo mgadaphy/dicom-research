@@ -1,16 +1,30 @@
-from flask import Flask, jsonify, render_template, request, send_file, abort
+from flask import Flask, jsonify, render_template, request, send_file, abort, redirect, url_for
 import os
+import os.path
 import pydicom
 from PIL import Image
 import numpy as np
 import io
 import json
 import uuid
+import logging
 from datetime import datetime
 from src.dicom_reviewer.parsers.dicom_parser import DICOMParser
 from src.dicom_reviewer.schemas.dicom_metadata import DICOMMetadata
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from src.dicom_reviewer.models.db.user import db, User, Session
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+
+# Use absolute path for database file
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'dicom_reviewer.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DICOM file directory
 DICOM_DIR = '/home/mogadaphy/dicom-research/dicom-files'
@@ -18,11 +32,160 @@ DICOM_DIR = '/home/mogadaphy/dicom-research/dicom-files'
 # Initialize an in-memory store for annotations (would be a database in production)
 annotations_store = {}
 
+# Initialize the database
+db.init_app(app)
+
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Explicit database initialization function
+def initialize_database(app):
+    try:
+        logger.info(f"Creating database at {db_path}")
+        with app.app_context():
+            db.create_all()
+            logger.info("Database tables created successfully")
+            
+            # Create default users if they don't exist
+            if User.query.count() == 0:
+                logger.info("Creating default users")
+                admin = User(
+                    username='admin',
+                    email='admin@example.com',
+                    full_name='System Administrator',
+                    role='admin'
+                )
+                admin.set_password('admin')
+                db.session.add(admin)
+                
+                radiologist = User(
+                    username='radiologist1',
+                    email='radiologist1@example.com',
+                    full_name='Test Radiologist',
+                    role='radiologist'
+                )
+                radiologist.set_password('password')
+                db.session.add(radiologist)
+                
+                db.session.commit()
+                logger.info("Default users created")
+            else:
+                logger.info("Default users already exist")
+                
+    except Exception as e:
+        logger.error(f"Error initializing database: {e}")
+        raise
+
+# Call the initialization function before starting the app
+logger.info("Initializing application")
+initialize_database(app)
+logger.info("Application initialized successfully")
+
 @app.route('/')
 def hello_world():
-    return 'Multi-Reviewer DICOM System - Development Environment'
+    if current_user.is_authenticated:
+        return redirect(url_for('dicom_list'))
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dicom_list'))
+        
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = 'remember' in request.form
+        
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('dicom_list'))
+        else:
+            return render_template('login.html', error='Invalid username or password')
+    
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dicom_list'))
+        
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        full_name = request.form.get('full_name')
+        
+        # Validate inputs
+        if not username or not email or not password or not full_name:
+            return render_template('register.html', error='All fields are required')
+            
+        if password != confirm_password:
+            return render_template('register.html', error='Passwords do not match')
+            
+        if User.query.filter_by(username=username).first():
+            return render_template('register.html', error='Username already exists')
+            
+        if User.query.filter_by(email=email).first():
+            return render_template('register.html', error='Email already exists')
+        
+        # Create new user
+        user = User(
+            username=username,
+            email=email,
+            full_name=full_name,
+            role='radiologist'  # Default role
+        )
+        user.set_password(password)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        # Log the user in
+        login_user(user)
+        
+        return redirect(url_for('dicom_list'))
+    
+    return render_template('register.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    # Count user's annotations
+    annotation_count = 0
+    studies_with_annotations = set()
+    
+    for study_uid, annotations in annotations_store.items():
+        for annotation in annotations:
+            if annotation.get('reviewerId') == current_user.username:
+                annotation_count += 1
+                studies_with_annotations.add(study_uid)
+    
+    return render_template('profile.html', 
+                          annotation_count=annotation_count,
+                          study_count=len(studies_with_annotations))
 
 @app.route('/parse_dicom')
+@login_required
 def parse_dicom_directory():
     try:
         # Parse DICOM directory
@@ -45,10 +208,12 @@ def parse_dicom_directory():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/dicom_list')
+@login_required
 def dicom_list():
     return render_template('dicom_list.html')
 
 @app.route('/viewer')
+@login_required
 def viewer():
     study_uid = request.args.get('studyUid')
     
@@ -58,6 +223,7 @@ def viewer():
     return render_template('viewer.html')
 
 @app.route('/annotate')
+@login_required
 def annotate_viewer():
     study_uid = request.args.get('studyUid')
     
@@ -67,6 +233,7 @@ def annotate_viewer():
     return render_template('viewer.html')
 
 @app.route('/api/dicom/<study_uid>/metadata', methods=['GET'])
+@login_required
 def get_study_metadata(study_uid):
     try:
         # Parse DICOM directory
@@ -100,6 +267,7 @@ def get_study_metadata(study_uid):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/dicom/<study_uid>/preview', methods=['GET'])
+@login_required
 def get_dicom_preview(study_uid):
     try:
         # Find a DICOM file for this study
@@ -165,6 +333,7 @@ def get_dicom_preview(study_uid):
         return str(e), 500
 
 @app.route('/api/dicom/<study_uid>/<series_uid>/<instance_uid>', methods=['GET'])
+@login_required
 def get_dicom_metadata(study_uid, series_uid, instance_uid):
     try:
         # Parse DICOM directory
@@ -198,6 +367,7 @@ def get_dicom_metadata(study_uid, series_uid, instance_uid):
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/dicom/<study_uid>/<series_uid>/<instance_uid>/file', methods=['GET'])
+@login_required
 def get_dicom_file(study_uid, series_uid, instance_uid):
     try:
         # For this prototype, we'll just return the first DICOM file
@@ -224,6 +394,7 @@ def get_dicom_file(study_uid, series_uid, instance_uid):
         return str(e), 500
 
 @app.route('/api/annotations', methods=['POST'])
+@login_required
 def create_annotation():
     try:
         data = request.json
@@ -231,6 +402,9 @@ def create_annotation():
         # Add a unique ID if not provided
         if 'id' not in data:
             data['id'] = str(uuid.uuid4())
+            
+        # Use the current user's ID instead of the provided reviewer_id
+        data['reviewerId'] = current_user.username
             
         # Add timestamp if not provided
         if 'timestamp' not in data:
@@ -250,7 +424,11 @@ def create_annotation():
         existing_index = next((i for i, a in enumerate(annotations_store[study_uid]) 
                               if a.get('id') == data.get('id')), -1)
         
+        # Only allow update if the annotation belongs to the current user
         if existing_index >= 0:
+            if annotations_store[study_uid][existing_index].get('reviewerId') != current_user.username:
+                return jsonify({"error": "You can only update your own annotations"}), 403
+                
             # Update existing annotation
             annotations_store[study_uid][existing_index] = data
         else:
@@ -263,29 +441,43 @@ def create_annotation():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/annotations/<study_uid>', methods=['GET'])
+@login_required
 def get_study_annotations(study_uid):
     try:
-        # Return annotations for this study
-        return jsonify(annotations_store.get(study_uid, []))
+        # For radiologists, only return their own annotations
+        # For admins, return all annotations
+        if current_user.role == 'radiologist':
+            filtered_annotations = [
+                a for a in annotations_store.get(study_uid, [])
+                if a.get('reviewerId') == current_user.username
+            ]
+            return jsonify(filtered_annotations)
+        else:
+            # Admin can see all annotations
+            return jsonify(annotations_store.get(study_uid, []))
     except Exception as e:
         print(f"Error getting annotations: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/annotations/<study_uid>/<annotation_id>', methods=['DELETE'])
+@login_required
 def delete_annotation(study_uid, annotation_id):
     try:
         if study_uid in annotations_store:
-            # Filter out the annotation with the given ID
-            original_count = len(annotations_store[study_uid])
-            annotations_store[study_uid] = [
-                a for a in annotations_store[study_uid] if a.get('id') != annotation_id
-            ]
+            # Find the annotation
+            annotation_index = next((i for i, a in enumerate(annotations_store[study_uid]) 
+                                    if a.get('id') == annotation_id), -1)
             
-            # Check if an annotation was removed
-            if len(annotations_store[study_uid]) < original_count:
-                return jsonify({"success": True})
-            else:
+            if annotation_index == -1:
                 return jsonify({"error": "Annotation not found"}), 404
+                
+            # Check if the user owns this annotation
+            if annotations_store[study_uid][annotation_index].get('reviewerId') != current_user.username:
+                return jsonify({"error": "You can only delete your own annotations"}), 403
+            
+            # Remove the annotation
+            annotations_store[study_uid].pop(annotation_index)
+            return jsonify({"success": True})
         else:
             return jsonify({"error": "Study not found"}), 404
     except Exception as e:
