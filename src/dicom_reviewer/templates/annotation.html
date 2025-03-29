@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DICOM Annotation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/annotation.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Study Information</h2>
+            <div id="study-info">
+                <p><strong>Patient ID:</strong> <span id="patient-id"></span></p>
+                <p><strong>Patient Name:</strong> <span id="patient-name"></span></p>
+                <p><strong>Study Date:</strong> <span id="study-date"></span></p>
+                <p><strong>Modality:</strong> <span id="modality"></span></p>
+                <p><strong>Series Description:</strong> <span id="series-description"></span></p>
+            </div>
+            
+            <div class="controls">
+                <h3>Viewer Controls</h3>
+                <button id="zoom-in">Zoom In</button>
+                <button id="zoom-out">Zoom Out</button>
+                <button id="reset-view">Reset View</button>
+                <div class="window-controls">
+                    <label for="window-width">Window Width:</label>
+                    <input type="range" id="window-width" min="1" max="4000" value="400">
+                    <label for="window-center">Window Center:</label>
+                    <input type="range" id="window-center" min="-1000" max="3000" value="40">
+                </div>
+            </div>
+            
+            <div class="annotation-tools">
+                <h3>Annotation Tools</h3>
+                <div class="tool-group">
+                    <button id="rectangle-tool" class="tool-button">Rectangle</button>
+                    <button id="ellipse-tool" class="tool-button">Ellipse</button>
+                    <button id="arrow-tool" class="tool-button">Arrow</button>
+                    <button id="length-tool" class="tool-button">Length</button>
+                </div>
+                
+                <form id="annotation-form" class="annotation-form" style="display: none;">
+                    <h4>Annotation Details</h4>
+                    <label for="finding">Finding:</label>
+                    <input type="text" id="finding" required placeholder="e.g., Tumor, Fracture, etc.">
+                    
+                    <label for="confidence">Confidence (1-10):</label>
+                    <input type="number" id="confidence" min="1" max="10" value="7" required>
+                    
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" rows="3" placeholder="Additional observations..."></textarea>
+                    
+                    <div class="form-buttons">
+                        <button type="submit" id="save-annotation">Save Annotation</button>
+                        <button type="button" id="cancel-annotation">Cancel</button>
+                    </div>
+                </form>
+                
+                <div class="annotation-list-container">
+                    <h4>Existing Annotations <button id="refresh-annotations" class="tool-button">Refresh</button></h4>
+                    <div id="annotation-list" class="annotation-list">
+                        <!-- Annotations will be listed here -->
+                        <p>No annotations yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="viewer-container">
+                <canvas id="dicom-viewer"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cornerstone-core/2.3.0/cornerstone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cornerstone-math/0.1.9/cornerstoneMath.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cornerstone-tools/6.0.6/cornerstoneTools.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dicom-parser/1.8.11/dicomParser.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dicom-loader.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/viewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/annotation-tools.js') }}"></script>
+    <script>
+        // Initialize annotation manager after the page loads
+        window.addEventListener('load', function() {
+            // Make sure the image is loaded first
+            setTimeout(() => {
+                const element = document.getElementById('dicom-viewer');
+                window.annotationManager = new AnnotationManager(element);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
