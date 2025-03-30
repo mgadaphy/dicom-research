@@ -35,9 +35,7 @@
    - 6.3 Study Management Workflows
    - 6.4 DICOM Viewing and Annotation Workflows
    - 6.5 Consensus Workflows
-   - 6.6 Reporting and Analytics Workflows
-   - 6.7 System Administration Workflows
-   - 6.8 Integration with External Systems
+   - 6.6 Future Planned Workflows
 
 ## Implementation Timeline
 
