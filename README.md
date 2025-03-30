@@ -12,6 +12,7 @@ The DICOM Multi-Reviewer System is a collaborative medical imaging platform desi
 - **Collaborative Review:** Tools to enable multiple radiologists to review the same studies
 - **Discrepancy Detection:** Automatic identification of spatial, classification, and presence discrepancies between reviewers
 - **Consensus Building:** Tools to facilitate reaching consensus on discrepant findings
+- **Persistent Annotations:** Annotations are saved to the database and preserved between sessions
 
 ## Installation & Setup
 
@@ -21,6 +22,21 @@ The DICOM Multi-Reviewer System is a collaborative medical imaging platform desi
 - pip package manager
 - Git
 - SQLite (included with Python)
+
+### DICOM Test Files
+
+The system requires DICOM files for testing and development. We recommend using:
+
+1. **MAGNETOM Free.Max Sample Data**: Publicly available sample DICOM files from Siemens Healthineers
+2. **Orthanc Sample Files**: Anonymous DICOM files available at [orthanc-server/orthanc-setup-samples](https://github.com/orthanc-server/orthanc-setup-samples/tree/master/dicomFiles)
+
+For proper setup, place your DICOM files in a directory named `dicom-files` in the same parent directory as the `multi-reviewer` folder:
+
+```
+dicom-research/
+├── multi-reviewer/    # Main application code
+└── dicom-files/       # DICOM test files
+```
 
 ### Installation Steps
 
@@ -41,12 +57,21 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Update the DICOM directory path in `src/dicom_reviewer/main.py`:
+4. Update the DICOM directory path in `src/dicom_reviewer/main.py` if needed:
 ```python
-DICOM_DIR = '/path/to/your/dicom/files'
+DICOM_DIR = '../dicom-files'  # Relative path to DICOM files directory
 ```
 
 5. Run the application:
+
+**For standard Ubuntu/Linux systems:**
+```bash
+cd multi-reviewer
+export PYTHONPATH=$(pwd)
+python src/dicom_reviewer/main.py
+```
+
+**For Windows WSL environment:**
 ```bash
 cd multi-reviewer
 PYTHONPATH=$(pwd) python src/dicom_reviewer/main.py
@@ -82,6 +107,7 @@ multi-reviewer/
 │       │   ├── consensus_engine.py # Consensus comparison logic
 │       │   └── db/
 │       │       ├── user.py         # User authentication models
+│       │       ├── annotation.py   # Persistent annotation storage
 │       │       └── consensus.py    # Consensus data models
 │       ├── parsers/
 │       │   └── dicom_parser.py     # DICOM file handling
@@ -103,6 +129,7 @@ multi-reviewer/
 │           ├── viewer.html         # DICOM viewer and annotation page
 │           └── consensus_viewer.html # Multi-reviewer consensus view
 ├── tests/                          # Test files
+├── instance/                       # SQLite database files
 ├── docker-compose.yml              # Docker setup
 └── requirements.txt                # Python dependencies
 ```
@@ -112,26 +139,31 @@ multi-reviewer/
 #### DICOM Parser
 - Extracts metadata from DICOM files
 - Converts DICOM images to browser-viewable format
+- Handles various DICOM formats and manufacturers
 
 #### Annotation System
 - Canvas-based drawing tools
 - Multi-shape annotation tools (rectangle, circle, line, arrow, text)
 - Annotation metadata (findings, confidence, notes)
+- Persistent storage of annotations in SQLite database
 
 #### User Management
 - Registration and authentication
 - Role-based access control
 - User profile management
+- Session management
 
 #### Discrepancy Detection System
 - Identifies spatial discrepancies (annotations in similar locations with insufficient overlap)
 - Detects classification discrepancies (same location, different findings)
 - Highlights presence discrepancies (findings marked by one reviewer but not others)
 - Visual indicators for different discrepancy types
+- Configurable threshold for spatial overlap
 
-#### In-Memory Data Storage
+#### Data Storage
 - User database (SQLite)
-- Annotation storage (in-memory, reset on server restart)
+- Persistent annotation storage (SQLite)
+- Study and series metadata
 
 ## User Guide
 
@@ -141,6 +173,7 @@ multi-reviewer/
 3. Click the "View" button to open a study in the viewer
 4. Use the zoom controls to adjust the image size
 5. The window/level sliders allow adjustment of the image contrast
+6. Navigate between images using the Previous/Next buttons
 
 ### Creating Annotations
 1. Open a study by clicking "Annotate" from the main list
@@ -150,13 +183,14 @@ multi-reviewer/
 5. Add multiple shapes by clicking "Add Shape" and selecting tools
 6. Remove shapes by clicking "Remove Shape" and then clicking on shapes
 7. Add clinical findings, confidence level, and notes
-8. Click "Save" to save the annotation
+8. Click "Save" to save the annotation to the database
 
 ### Managing Annotations
 - Saved annotations appear in the list on the right sidebar
 - Click "Edit" on an annotation to modify it
 - Click "Delete" to remove an annotation
 - Only the creator of an annotation can edit or delete it
+- Annotations persist between sessions and server restarts
 
 ### Consensus Review
 1. Access the consensus viewer for studies with multiple reviews
@@ -174,11 +208,12 @@ multi-reviewer/
 - Admin users can see annotations from all radiologists
 - Radiologists can only see their own annotations
 - Admins can initiate consensus reviews for studies with multiple annotations
+- Access to system statistics and user management
 
 ## Technologies Used
 
 - **Backend:** Flask (Python web framework)
-- **Database:** SQLite for user management
+- **Database:** SQLite for user management and annotation storage
 - **Authentication:** Flask-Login
 - **Frontend:** HTML, CSS, JavaScript (vanilla)
 - **DICOM Processing:** pydicom, Pillow (PIL)
@@ -187,34 +222,37 @@ multi-reviewer/
 ## Limitations & Future Development
 
 ### Current Limitations
-- Annotations are stored in-memory and lost on server restart
-- Basic visualization of DICOM images (no windowing, measurements, or 3D)
 - Limited to single-frame DICOM images
+- Basic visualization of DICOM images (limited windowing)
 - No real-time collaboration between radiologists
+- Limited support for complex DICOM formats
 
 ### Planned Features
 
 #### Consensus Dashboard Enhancements
-- Discrepancy detection and highlighting
-- Overlay view of annotations from multiple reviewers
-- Side-by-side comparison of annotations
-- Statistical analysis of inter-reviewer agreement
-- Discussion threads for resolving discrepancies
-- Voting mechanism for consensus building
+- ✅ Persistent annotation storage
+- ✅ Discrepancy detection and highlighting
+- ✅ Overlay view of annotations from multiple reviewers
+- 🔄 Side-by-side comparison of annotations (in progress)
+- 📅 Statistical analysis of inter-reviewer agreement
+- 📅 Discussion threads for resolving discrepancies
+- 📅 Voting mechanism for consensus building
 
-#### Persistent Data Storage
-- Database storage for annotations
-- PACS integration
+#### Advanced Data Storage
+- ✅ SQLite database for annotations
+- 📅 PACS integration
+- 📅 Cloud storage options
 
 #### Advanced Visualization
-- MPR (Multiplanar Reconstruction)
-- MIP (Maximum Intensity Projection)
-- Volume rendering
+- 📅 MPR (Multiplanar Reconstruction)
+- 📅 MIP (Maximum Intensity Projection)
+- 📅 Volume rendering
+- 📅 Enhanced windowing controls
 
 #### Communication Tools
-- Discussion threads for specific annotations
-- Notification system
-- Real-time collaboration
+- 📅 Discussion threads for specific annotations
+- 📅 Notification system
+- 📅 Real-time collaboration
 
 ## Development Guidelines
 
@@ -227,7 +265,14 @@ multi-reviewer/
 
 ## Changelog
 
-### v0.2.0 (March 2025)
+### v0.3.0 (March 2025)
+- Implemented persistent annotation storage using SQLite
+- Enhanced DICOM file handling for various manufacturers
+- Added support for more annotation types and metadata
+- Improved user interface for annotation management
+- Added database migration system
+
+### v0.2.0 (February 2025)
 - Added consensus viewer for comparing annotations from multiple reviewers
 - Implemented discrepancy detection for spatial, classification, and presence differences
 - Added visual highlighting of discrepancies with color-coding
