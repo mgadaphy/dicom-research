@@ -62,22 +62,35 @@ pip install -r requirements.txt
 DICOM_DIR = '../dicom-files'  # Relative path to DICOM files directory
 ```
 
-5. Run the application:
+## Running the Application
 
-**For standard Ubuntu/Linux systems:**
+### Development Environment
+
+1. Navigate to the project directory:
+   ```bash
+   cd ~/dicom-research/multi-reviewer
+   ```
+
+2. Activate the virtual environment:
+   ```bash
+   source venv/bin/activate
+   ```
+
+3. Run the application:
+   ```bash
+   PYTHONPATH=$(pwd)/src python src/dicom_reviewer/main.py
+   ```
+
+4. Access the application in your browser at `http://localhost:5000`
+
+### Production Environment
+
+For production deployment, use a WSGI server like Gunicorn:
+
 ```bash
-cd multi-reviewer
-export PYTHONPATH=$(pwd)
-python src/dicom_reviewer/main.py
+pip install gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 src.dicom_reviewer.main:app
 ```
-
-**For Windows WSL environment:**
-```bash
-cd multi-reviewer
-PYTHONPATH=$(pwd) python src/dicom_reviewer/main.py
-```
-
-6. Access the application at: http://localhost:5000
 
 ### Default Accounts
 
@@ -165,6 +178,78 @@ multi-reviewer/
 - Persistent annotation storage (SQLite)
 - Study and series metadata
 
+## Project Documentation Plan
+
+### Phase 1: Technical Documentation
+
+1. **System Architecture Documentation**
+   - Complete system architecture diagrams
+   - Component interaction flowcharts
+   - Database schema documentation
+   - API endpoint documentation
+
+2. **Code Documentation**
+   - Add comprehensive docstrings to all Python modules, classes, and functions
+   - Document JavaScript functions and components
+   - Create a style guide for future code contributions
+   - Add inline comments for complex algorithms
+
+3. **Installation and Deployment Guide**
+   - Detailed setup instructions for different environments (Linux, WSL, macOS)
+   - Production deployment guide with security considerations
+   - Troubleshooting common installation issues
+   - System requirements and dependencies documentation
+
+### Phase 2: User Documentation
+
+1. **Administrator Guide**
+   - System configuration options
+   - User management procedures
+   - Backup and recovery procedures
+   - System monitoring and maintenance
+
+2. **Radiologist User Guide**
+   - Annotation workflow tutorial
+   - Tool usage instructions with screenshots
+   - Best practices for consistent annotations
+   - Keyboard shortcuts and efficiency tips
+
+3. **Consensus Review Guide**
+   - Consensus workflow explanation
+   - Discrepancy resolution procedures
+   - Reporting and exporting results
+   - Collaboration features tutorial
+
+### Phase 3: Educational Materials
+
+1. **Training Materials**
+   - Video tutorials for common workflows
+   - Interactive demos for annotation tools
+   - Quick reference cards for frequently used features
+   - Sample datasets for training purposes
+
+2. **Knowledge Base**
+   - FAQ section for common questions
+   - Troubleshooting guides for common issues
+   - Glossary of technical and medical terms
+   - Best practices for DICOM annotation
+
+### Phase 4: Development Documentation
+
+1. **Contributor Guide**
+   - Code contribution guidelines
+   - Development environment setup
+   - Testing procedures and guidelines
+   - Pull request and code review process
+
+2. **Extension and Plugin Documentation**
+   - API documentation for third-party integrations
+   - Plugin development guide
+   - Custom annotation tool creation tutorial
+   - Integration with external PACS systems
+
+This documentation plan will ensure comprehensive coverage of all aspects of the DICOM Multi-Reviewer System, facilitating both user adoption and future development.
+
 ## User Guide
 
 ### Viewing DICOM Images
@@ -209,6 +294,42 @@ multi-reviewer/
 - Radiologists can only see their own annotations
 - Admins can initiate consensus reviews for studies with multiple annotations
 - Access to system statistics and user management
+
+## Future Enhancements
+
+The following features are planned for future implementation:
+
+### Consensus Dashboard Enhancements
+
+1. **Side-by-Side View Implementation**
+   - Display annotations from multiple reviewers in separate panels
+   - Provide clear visual separation between reviewer annotations
+   - Enable easy comparison of findings across reviewers
+
+2. **Improved Discrepancy Detection**
+   - Enhanced spatial analysis algorithms
+   - Better handling of different annotation types
+   - Configurable thresholds for different discrepancy types
+
+3. **Consensus Building Interface**
+   - Discussion threads for resolving discrepancies
+   - Voting mechanism for consensus building
+   - Automated consensus suggestions based on reviewer expertise
+
+4. **Statistics and Reporting**
+   - Inter-reviewer reliability metrics
+   - Comprehensive reporting on discrepancies
+   - Export capabilities for consensus findings
+
+### Advanced Data Storage
+- PACS integration
+- Cloud storage options
+
+### Advanced Visualization
+- MPR (Multiplanar Reconstruction)
+- MIP (Maximum Intensity Projection)
+- Volume rendering
+- Enhanced windowing controls
 
 ## Technologies Used
 
