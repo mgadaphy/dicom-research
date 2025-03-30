@@ -20,9 +20,7 @@
    - 4.2 Users Table
    - 4.3 Sessions Table
    - 4.4 Annotations Table
-   - 4.5 Consensus Sessions Table
-   - 4.6 Association Tables
-   - 4.7 Table Relationships
+   - 4.5 Table Relationships
    
 5. [Installation and Deployment](installation_deployment.md)
    - 5.1 System Requirements

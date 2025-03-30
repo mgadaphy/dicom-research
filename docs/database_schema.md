@@ -46,34 +46,8 @@ erDiagram
     datetime updated_at
   }
   
-  CONSENSUS_SESSIONS {
-    string id PK
-    string title
-    text description
-    string study_uid
-    datetime created_at
-    datetime updated_at
-    string status
-    int creator_id FK
-  }
-  
-  CONSENSUS_ANNOTATION_ASSOCIATION {
-    string session_id FK
-    string annotation_id FK
-  }
-  
-  CONSENSUS_REVIEWER_ASSOCIATION {
-    string session_id FK
-    int reviewer_id FK
-  }
-  
   USERS ||--o{ SESSIONS : has
   USERS ||--o{ ANNOTATIONS : creates
-  USERS ||--o{ CONSENSUS_SESSIONS : creates
-  
-  ANNOTATIONS }|--o{ CONSENSUS_SESSIONS : included_in
-  
-  CONSENSUS_SESSIONS }|--o{ USERS : includes
 ```
 
 ### Users Table
@@ -179,74 +153,9 @@ Key fields:
 - `region_data`: JSON-encoded shape data
 - `created_at`, `updated_at`: Timestamps
 
-### Consensus Sessions Table
-
-The `consensus_sessions` table tracks consensus review sessions:
-
-```python
-# From consensus.py
-class ConsensusSession(db.Model):
-    __tablename__ = 'consensus_sessions'
-    
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    study_uid = db.Column(db.String(64), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    status = db.Column(db.String(20), default='active')  # active, completed, archived
-    
-    # Creator of the consensus session
-    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    creator = relationship('User', foreign_keys=[creator_id])
-    
-    # Many-to-many relationship with annotations
-    annotations = db.relationship('Annotation', 
-                                secondary='consensus_annotation_association',
-                                backref=db.backref('consensus_sessions', lazy='dynamic'))
-    
-    # Many-to-many relationship with reviewers (users)
-    reviewers = db.relationship('User',
-                               secondary='consensus_reviewer_association',
-                               backref=db.backref('consensus_sessions', lazy='dynamic'))
-```
-
-Key fields:
-- `id`: Primary key, UUID string
-- `title`: Session title
-- `description`: Session description
-- `study_uid`: DICOM study identifier
-- `created_at`, `updated_at`: Timestamps
-- `status`: Session status
-- `creator_id`: Foreign key to the users table
-- Relationships to annotations and reviewers
-
-### Association Tables
-
-The system uses two association tables for many-to-many relationships:
-
-```python
-# From consensus.py
-# Association between consensus sessions and annotations
-consensus_annotation_association = db.Table('consensus_annotation_association',
-    db.Column('session_id', db.String(36), db.ForeignKey('consensus_sessions.id'), primary_key=True),
-    db.Column('annotation_id', db.String(36), db.ForeignKey('annotations.id'), primary_key=True)
-)
-
-# Association between consensus sessions and reviewers
-consensus_reviewer_association = db.Table('consensus_reviewer_association',
-    db.Column('session_id', db.String(36), db.ForeignKey('consensus_sessions.id'), primary_key=True),
-    db.Column('reviewer_id', db.Integer, db.ForeignKey('users.id'), primary_key=True)
-)
-```
-
-These tables enable:
-- Many-to-many relationship between consensus sessions and annotations
-- Many-to-many relationship between consensus sessions and reviewers (users)
-
 ### Table Relationships
 
-The database schema includes several key relationships:
+The database schema includes the following key relationships:
 
 1. **User to Annotations**: One-to-many relationship where each user can create multiple annotations
    ```python
@@ -260,18 +169,4 @@ The database schema includes several key relationships:
    user = db.relationship('User', backref=db.backref('sessions', lazy=True))
    ```
 
-3. **Session to Annotations**: Many-to-many relationship through the consensus_annotation_association table
-   ```python
-   annotations = db.relationship('Annotation', 
-                               secondary='consensus_annotation_association',
-                               backref=db.backref('consensus_sessions', lazy='dynamic'))
-   ```
-
-4. **Session to Reviewers**: Many-to-many relationship through the consensus_reviewer_association table
-   ```python
-   reviewers = db.relationship('User',
-                              secondary='consensus_reviewer_association',
-                              backref=db.backref('consensus_sessions', lazy='dynamic'))
-   ```
-
-This database schema provides a solid foundation for the DICOM Multi-Reviewer System, enabling persistent storage of user data, annotations, and consensus information while maintaining proper relationships between different entities.
+This database schema provides a solid foundation for the DICOM Multi-Reviewer System, enabling persistent storage of user data and annotations while maintaining proper relationships between different entities.
