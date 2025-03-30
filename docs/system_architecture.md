@@ -23,6 +23,8 @@ graph TD
   end
 ```
 
+**Diagram Explanation:** The development environment consists of Windows 11 as the host operating system, running WSL2 with Ubuntu 24.04.2 LTS. Visual Studio Code with the Remote WSL extension is used as the primary IDE for development.
+
 ### Backend Components
 
 The server-side components of the system include:
@@ -111,6 +113,8 @@ graph TD
   end
 ```
 
+**Diagram Explanation:** The complete technical stack diagram illustrates the three main components of the system: the development environment (Windows/WSL2/Ubuntu/VS Code), the backend stack (Python/Flask/SQLite with various libraries), and the frontend stack (HTML5/CSS3/JavaScript with Canvas API for drawing annotations).
+
 ## 2.2 System Components
 
 The DICOM Multi-Reviewer System is composed of several interconnected components that work together to provide a comprehensive solution for collaborative radiology review. This section details these components and their interactions.
@@ -133,6 +137,8 @@ sequenceDiagram
   Backend-->>Frontend: Authentication Response
   Frontend-->>User: Login Success/Failure
 ```
+
+**Diagram Explanation:** The authentication flow begins with the user entering their credentials in the frontend. These credentials are sent to the backend, which verifies them against the database. The authentication result is then returned to the frontend, which either grants access to the system or displays an error message.
 
 Key components:
 - **User Model**: Defines user attributes and methods
@@ -177,6 +183,8 @@ sequenceDiagram
   Backend-->>Frontend: Processed Image Data
   Frontend-->>User: Display Image
 ```
+
+**Diagram Explanation:** When a user requests a study, the frontend sends a request to the backend, which loads the DICOM files from the filesystem. The backend processes the DICOM data (extracting metadata and converting pixel data) and sends it to the frontend, which displays the images to the user.
 
 Key components:
 - **DICOM Parser**: Extracts metadata and pixel data from DICOM files
@@ -238,6 +246,8 @@ sequenceDiagram
   Frontend-->>User: Update UI
 ```
 
+**Diagram Explanation:** The annotation process begins with the user drawing on the canvas. The frontend captures this drawing data and combines it with metadata entered by the user. This complete annotation is sent to the backend, which stores it in the database. Confirmation is sent back through the system, and the UI is updated to reflect the saved annotation.
+
 Key components:
 - **Canvas Drawing Tools**: Interface for creating shapes on images
 - **Annotation Model**: Data structure for storing annotation information
@@ -291,9 +301,13 @@ function saveAnnotation() {
 }
 ```
 
-### Consensus Dashboard Components
+### Future Planned Features
 
-The consensus dashboard facilitates comparison and resolution of discrepancies:
+The following components are planned for future implementation:
+
+#### Consensus Dashboard Components
+
+The consensus dashboard will facilitate comparison and resolution of discrepancies:
 
 ```mermaid
 sequenceDiagram
@@ -318,67 +332,14 @@ sequenceDiagram
   Frontend-->>User: Display Comparison View
 ```
 
-Key components:
-- **Consensus Session Model**: Tracks review sessions between multiple reviewers
-- **Discussion System**: Enables communication about discrepancies
-- **Voting Mechanism**: Allows reviewers to agree or disagree with findings
-- **Discrepancy Detection**: Identifies differences between annotations
-- **Visualization Tools**: Displays multiple annotations for comparison
+**Diagram Explanation:** The planned consensus workflow will begin with the user accessing the dashboard, which requests studies with multiple reviews from the database. When a study is selected, the system will retrieve all annotations for that study, grouped by reviewer. The frontend will detect discrepancies between these annotations and display them in a comparison view for analysis.
 
-```python
-# Example from consensus_engine.py showing discrepancy detection
-class ConsensusEngine:
-    @staticmethod
-    def detect_discrepancies(annotations):
-        """
-        Detect and analyze differences in annotations.
-        
-        This method identifies discrepancies between annotations based on:
-        1. Different findings for the same region
-        2. Overlapping regions with different findings
-        3. Significant differences in confidence levels
-        """
-        if len(annotations) < 2:
-            return {"consensus_possible": True, "discrepancies": []}
-        
-        discrepancies = []
-        
-        # Group annotations by finding
-        findings_dict = {}
-        for ann in annotations:
-            finding = ann.finding or "Unspecified"
-            if finding not in findings_dict:
-                findings_dict[finding] = []
-            findings_dict[finding].append(ann)
-        
-        # Check for different findings
-        unique_findings = list(findings_dict.keys())
-        is_consensus_on_finding = len(unique_findings) <= 1
-        
-        if not is_consensus_on_finding:
-            discrepancies.append({
-                "type": "finding_mismatch",
-                "description": f"Different findings detected: {', '.join(unique_findings)}",
-                "findings": unique_findings
-            })
-        
-        # Check for spatial discrepancies
-        spatial_discrepancies = ConsensusEngine._detect_spatial_discrepancies(annotations)
-        if spatial_discrepancies:
-            discrepancies.extend(spatial_discrepancies)
-        
-        # Check for confidence level discrepancies
-        confidence_discrepancies = ConsensusEngine._detect_confidence_discrepancies(annotations)
-        if confidence_discrepancies:
-            discrepancies.extend(confidence_discrepancies)
-        
-        return {
-            "consensus_possible": len(discrepancies) == 0,
-            "discrepancies": discrepancies,
-            "total_annotations": len(annotations),
-            "unique_findings": unique_findings
-        }
-```
+Key planned components:
+- **Consensus Session Model**: Will track review sessions between multiple reviewers
+- **Discussion System**: Will enable communication about discrepancies
+- **Voting Mechanism**: Will allow reviewers to agree or disagree with findings
+- **Discrepancy Detection**: Will identify differences between annotations
+- **Visualization Tools**: Will display multiple annotations for comparison
 
 ### Data Flow Between Components
 
@@ -424,5 +385,7 @@ sequenceDiagram
   Frontend->>Frontend: Detect Discrepancies
   Frontend-->>User: Display Comparison View
 ```
+
+**Diagram Explanation:** This comprehensive flow diagram illustrates the interactions between all system components, from user authentication to DICOM viewing and annotation creation. The final sections showing consensus dashboard interactions represent planned future functionality.
 
 This architecture provides a robust foundation for the system while maintaining flexibility for future enhancements and extensions.

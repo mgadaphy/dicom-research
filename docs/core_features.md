@@ -4,6 +4,20 @@
 
 The DICOM Multi-Reviewer System implements a comprehensive user authentication and management system to ensure secure access and appropriate permissions for different user roles.
 
+```mermaid
+graph TD
+  A[Login Page] --> B{Authentication}
+  B -->|Success| C[DICOM List]
+  B -->|Failure| D[Error Message]
+  
+  E[Registration] --> F{Validation}
+  F -->|Success| G[Create User]
+  F -->|Failure| H[Error Message]
+  G --> C
+```
+
+**Workflow Explanation:** The authentication system allows users to log in with their credentials. Upon successful authentication, users are directed to the DICOM study list. New users can register through the registration form, which validates their information before creating their account.
+
 ### User Roles
 
 The system supports two primary user roles:
@@ -213,6 +227,8 @@ graph TD
   D --> H[Annotation Interface]
 ```
 
+**Workflow Explanation:** The DICOM viewing workflow begins with the study list, where users select a study to view. Within each study, users can select specific series, then navigate through images using various controls for adjusting the view (zoom, pan, window/level) and access the annotation tools.
+
 ### Study Selection Interface
 
 The study selection interface displays a list of available DICOM studies:
@@ -342,6 +358,8 @@ flowchart LR
     M3[Notes]
   end
 ```
+
+**Workflow Explanation:** The annotation process involves selecting a drawing tool, creating shapes on the image to mark regions of interest, entering metadata about the finding (including type, confidence level, and notes), and saving the annotation to the database for future reference and comparison.
 
 ### Annotation Tools
 
@@ -530,9 +548,13 @@ Key features:
 - Timestamps track creation and modification times
 - Consensus-related fields track the status of annotations in consensus review
 
-## 3.4 Consensus Dashboard
+## 3.4 Future Planned Features
 
-The Consensus Dashboard is a key feature that enables comparison of annotations from multiple reviewers and facilitates reaching consensus on discrepant findings.
+The following features are planned for future implementation in the DICOM Multi-Reviewer System:
+
+### Consensus Dashboard
+
+The Consensus Dashboard will enable comparison of annotations from multiple reviewers and facilitate reaching consensus on discrepant findings.
 
 ```mermaid
 graph TD
@@ -546,176 +568,40 @@ graph TD
   F -->|Off| H[Show All Annotations]
 ```
 
-### Accessing the Consensus Dashboard
-
-The Consensus Dashboard is accessible to users with appropriate permissions:
-
-```python
-# From main.py
-@app.route('/consensus')
-@login_required
-def consensus_dashboard():
-    return redirect(url_for('consensus_dashboard_page'))
-
-@app.route('/consensus/dashboard')
-@login_required
-def consensus_dashboard_page():
-    """
-    Render the consensus dashboard page.
-    This page displays studies with multiple reviews for comparison.
-    """
-    return render_template('consensus_dashboard.html')
-```
-
-Key features:
-- Available to administrators and radiologists participating in consensus sessions
-- Displays a list of studies with multiple reviews
-- Shows the number of reviewers and annotations per study
-- Provides access to the consensus viewer for each study
-
-### Overlay View for Multiple Annotations
-
-The Consensus Viewer provides an overlay view to compare annotations from different reviewers:
-
-```javascript
-// From consensus.js
-function drawOverlayView() {
-    // Clear the canvas
-    ctx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
-    
-    // Draw annotations from all active reviewers
-    Object.keys(activeReviewers).forEach(reviewerId => {
-        if (activeReviewers[reviewerId] && reviewerAnnotations[reviewerId]) {
-            const color = activeReviewers[reviewerId].color;
-            reviewerAnnotations[reviewerId].forEach(annotation => {
-                drawAnnotation(annotation, color);
-            });
-        }
-    });
-    
-    // Draw discrepancies if enabled
-    if (showDiscrepancies) {
-        drawDiscrepancies();
-    }
-}
-```
-
-Key features:
-- Displays annotations from multiple reviewers on the same image
-- Uses different colors to distinguish reviewers
-- Allows toggling reviewers on/off for selective comparison
-- Supports both overlay and side-by-side viewing modes
+**Planned Workflow Explanation:** The planned Consensus Dashboard will allow administrators to select studies with multiple reviews, choose which reviewers' annotations to compare, and view annotations in either overlay or side-by-side mode. The system will automatically detect discrepancies between annotations and provide tools to highlight and resolve these differences.
 
 ### Discrepancy Detection Mechanism
 
-The system automatically detects discrepancies between annotations:
+The system will automatically detect three types of discrepancies between annotations:
 
-```javascript
-// From consensus.js
-function detectDiscrepancies() {
-    discrepancies = [];
-    
-    // Get all active reviewers
-    const activeReviewerIds = Object.keys(activeReviewers).filter(id => activeReviewers[id]);
-    
-    // Need at least 2 reviewers to detect discrepancies
-    if (activeReviewerIds.length < 2) {
-        return;
-    }
-    
-    // Compare each pair of reviewers
-    for (let i = 0; i < activeReviewerIds.length; i++) {
-        for (let j = i + 1; j < activeReviewerIds.length; j++) {
-            const reviewer1 = activeReviewerIds[i];
-            const reviewer2 = activeReviewerIds[j];
-            
-            // Skip if either reviewer has no annotations
-            if (!reviewerAnnotations[reviewer1] || !reviewerAnnotations[reviewer2]) {
-                continue;
-            }
-            
-            // Compare annotations between these two reviewers
-            const pairDiscrepancies = compareAnnotations(reviewer1, reviewer2);
-            discrepancies = discrepancies.concat(pairDiscrepancies);
-        }
-    }
-    
-    // Update the UI with discrepancy count
-    updateDiscrepancyCount();
-    updateDiscrepancyList();
-}
+1. **Spatial Discrepancies**: Annotations in similar locations with insufficient overlap
+2. **Classification Discrepancies**: Annotations in the same location but with different findings
+3. **Presence Discrepancies**: Findings marked by one reviewer but not others
+
+### Consensus Building Interface
+
+The Consensus Building Interface will facilitate discussion and resolution of discrepancies:
+
+```mermaid
+graph TD
+  A[View Discrepancy] --> B[Open Discussion]
+  B --> C[Reviewers Comment]
+  C --> D[Vote on Resolution]
+  D --> E[Record Consensus]
 ```
 
-The system detects three types of discrepancies:
+**Planned Workflow Explanation:** For each identified discrepancy, reviewers will be able to discuss their interpretations, provide additional context, and vote on the correct interpretation. The system will record the consensus decision, which can be used for final reporting and quality improvement.
 
-1. **Spatial Discrepancies**
-   - Annotations in similar locations with insufficient overlap
-   - Calculated using geometric algorithms for different shape types
-   - Configurable threshold for overlap percentage
+### Statistics and Reporting
 
-2. **Classification Discrepancies**
-   - Annotations in the same location but with different findings
-   - Detected when overlapping regions have different finding labels
-   - Highlights differences in diagnosis for the same feature
+The system will generate statistics and reports on reviewer agreement and discrepancies:
 
-3. **Presence Discrepancies**
-   - Findings marked by one reviewer but not others
-   - Detected when a region has no corresponding annotations from other reviewers
-   - Highlights potential missed findings
-
-### "Show Discrepancies" Functionality
-
-The system provides a toggle to highlight detected discrepancies:
-
-```javascript
-// From consensus.js
-// Discrepancy toggle
-const discrepancyToggle = document.getElementById('show-discrepancies');
-if (discrepancyToggle) {
-    discrepancyToggle.addEventListener('change', (e) => {
-        showDiscrepancies = e.target.checked;
-        if (showDiscrepancies) {
-            detectDiscrepancies();
-            drawDiscrepancies();
-        } else {
-            // Clear discrepancy display
-            discrepancyList.innerHTML = '';
-            redrawAnnotations();
-        }
-    });
-}
-
-function drawDiscrepancies() {
-    // Draw visual indicators for discrepancies
-    discrepancies.forEach((discrepancy, index) => {
-        // Draw based on discrepancy type
-        switch (discrepancy.type) {
-            case 'spatial':
-                // Draw red outline around spatially discrepant regions
-                discrepancy.annotations.forEach(annotation => {
-                    drawAnnotationOutline(annotation, '#FF0000');
-                });
-                break;
-            case 'classification':
-                // Draw yellow outline around classification discrepancies
-                discrepancy.annotations.forEach(annotation => {
-                    drawAnnotationOutline(annotation, '#FFFF00');
-                });
-                break;
-            case 'presence':
-                // Draw green outline around presence discrepancies
-                discrepancy.annotations.forEach(annotation => {
-                    drawAnnotationOutline(annotation, '#00FF00');
-                });
-                break;
-        }
-    });
-}
+```mermaid
+graph TD
+  A[Consensus Dashboard] --> B[Statistics View]
+  B --> C[Agreement Rates]
+  B --> D[Discrepancy Types]
+  B --> E[Export Reports]
 ```
 
-Key features:
-- Toggle switch to show/hide discrepancy highlighting
-- Color-coded visual indicators for different discrepancy types
-- List of detected discrepancies with details
-- Ability to click on a discrepancy to focus on the relevant region
-- Statistics on the number and types of discrepancies
+**Planned Workflow Explanation:** The Statistics and Reporting feature will calculate metrics such as inter-reviewer agreement rates, common types of discrepancies, and individual reviewer performance. These reports can be exported for quality assurance and training purposes.
