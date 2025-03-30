@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let reviewerId = document.getElementById('current-username').value; // Get username from hidden input field
     let activeAnnotationId = null; // ID of the annotation currently being edited
     
+    // Image positioning variables
+    let imageRect = { x: 0, y: 0, width: 0, height: 0 };
+    
     // References to DOM elements
     const dicomPreview = document.getElementById('dicom-preview');
     const canvas = document.getElementById('annotation-canvas');
@@ -118,13 +121,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function setupCanvas() {
-        // Set canvas size to match the image
+        // Set canvas size to match the container
         const container = canvas.parentElement;
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
         
+        // Calculate the actual image dimensions and position
+        updateImageRect();
+        
         // Redraw existing annotations
         drawAnnotations();
+    }
+    
+    function updateImageRect() {
+        // Get the container dimensions
+        const container = canvas.parentElement;
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+        
+        // Get the natural image dimensions
+        const imageWidth = dicomPreview.naturalWidth;
+        const imageHeight = dicomPreview.naturalHeight;
+        
+        if (imageWidth === 0 || imageHeight === 0) {
+            // Image not loaded yet
+            return;
+        }
+        
+        // Calculate the image aspect ratio
+        const imageAspectRatio = imageWidth / imageHeight;
+        const containerAspectRatio = containerWidth / containerHeight;
+        
+        let width, height, x, y;
+        
+        if (imageAspectRatio > containerAspectRatio) {
+            // Image is wider than container (relative to their heights)
+            // Image will be constrained by width
+            width = containerWidth;
+            height = width / imageAspectRatio;
+            x = 0;
+            y = (containerHeight - height) / 2; // Center vertically
+        } else {
+            // Image is taller than container (relative to their widths)
+            // Image will be constrained by height
+            height = containerHeight;
+            width = height * imageAspectRatio;
+            x = (containerWidth - width) / 2; // Center horizontally
+            y = 0;
+        }
+        
+        // Update the image rect
+        imageRect = { x, y, width, height };
+        console.log('Image rect updated:', imageRect);
     }
     
     function startNewAnnotation() {
@@ -200,12 +248,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function startDrawing(e) {
         if (!currentTool || !currentAnnotation || !document.getElementById('add-shape').classList.contains('active')) return;
         
+        // Check if the click is within the actual image bounds
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        
+        // Only start drawing if the click is within the actual image area
+        if (clickX < imageRect.x || clickX > imageRect.x + imageRect.width ||
+            clickY < imageRect.y || clickY > imageRect.y + imageRect.height) {
+            console.log('Click outside image bounds, ignoring');
+            return;
+        }
+        
         isDrawing = true;
         
         // Get mouse position relative to canvas
-        const rect = canvas.getBoundingClientRect();
-        startX = (e.clientX - rect.left) / currentScale;
-        startY = (e.clientY - rect.top) / currentScale;
+        startX = clickX;
+        startY = clickY;
         
         // Create temporary shape
         tempShape = {
@@ -222,17 +281,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function draw(e) {
         if (!isDrawing || !tempShape) return;
         
-        // Get current mouse position
+        // Get mouse position relative to canvas
         const rect = canvas.getBoundingClientRect();
-        const currentX = (e.clientX - rect.left) / currentScale;
-        const currentY = (e.clientY - rect.top) / currentScale;
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
-        // Update temporary shape
-        tempShape.endX = currentX;
-        tempShape.endY = currentY;
+        // Update the temporary shape
+        tempShape.endX = mouseX;
+        tempShape.endY = mouseY;
         
         // Redraw
         drawAnnotations();
+        drawShape(tempShape, true);
     }
     
     function endDrawing(e) {
@@ -291,27 +351,53 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        console.log('Saving annotation with shapes:', currentAnnotation.shapes.length);
+        
+        // Normalize coordinates before saving
+        const annotationToSave = {...currentAnnotation};
+        annotationToSave.shapes = currentAnnotation.shapes.map(shape => 
+            normalizeCoordinates(shape, canvas.width, canvas.height)
+        );
+        
+        // Add version field to indicate normalized coordinates
+        annotationToSave.version = "normalized-1.0";
+        
         // Send to server
         fetch('/api/annotations', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(currentAnnotation),
+            body: JSON.stringify(annotationToSave),
         })
         .then(response => {
             if (!response.ok) throw new Error('Failed to save annotation');
             return response.json();
         })
         .then(data => {
-            // Check if this is an update or a new annotation
-            const existingIndex = annotations.findIndex(a => a.id === currentAnnotation.id);
-            if (existingIndex >= 0) {
-                // Update existing annotation
-                annotations[existingIndex] = currentAnnotation;
+            console.log('Annotation saved successfully:', data);
+            
+            // If the server returns the full annotation, use that to update our local copy
+            if (data.annotation) {
+                // Check if this is an update or a new annotation
+                const existingIndex = annotations.findIndex(a => a.id === data.annotation.id);
+                if (existingIndex >= 0) {
+                    // Update existing annotation
+                    annotations[existingIndex] = data.annotation;
+                } else {
+                    // Add new annotation
+                    annotations.push(data.annotation);
+                }
             } else {
-                // Add new annotation
-                annotations.push(currentAnnotation);
+                // Fallback to the old behavior
+                const existingIndex = annotations.findIndex(a => a.id === currentAnnotation.id);
+                if (existingIndex >= 0) {
+                    // Update existing annotation
+                    annotations[existingIndex] = currentAnnotation;
+                } else {
+                    // Add new annotation
+                    annotations.push(currentAnnotation);
+                }
             }
             
             // Reset current annotation
@@ -400,8 +486,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Get mouse position
         const rect = canvas.getBoundingClientRect();
-        const mouseX = (e.clientX - rect.left) / currentScale;
-        const mouseY = (e.clientY - rect.top) / currentScale;
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
         console.log("Mouse position:", mouseX, mouseY);
         console.log("Current annotation shapes:", currentAnnotation.shapes);
@@ -508,18 +594,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadAnnotations(studyUid) {
+        console.log('Loading annotations for study:', studyUid);
         fetch(`/api/annotations/${studyUid}`)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to load annotations');
                 return response.json();
             })
             .then(data => {
-                annotations = data;
+                console.log('Loaded annotations:', data);
+                
+                // Ensure each annotation has the expected fields
+                annotations = data.map(annotation => {
+                    // Ensure shapes exists and is an array
+                    if (!annotation.shapes || !Array.isArray(annotation.shapes)) {
+                        console.warn(`Annotation ${annotation.id} missing shapes array, initializing empty array`);
+                        annotation.shapes = [];
+                    }
+                    
+                    // Ensure confidence exists
+                    if (annotation.confidence === undefined || annotation.confidence === null) {
+                        console.warn(`Annotation ${annotation.id} missing confidence value, setting default`);
+                        annotation.confidence = 7; // Default value
+                    }
+                    
+                    return annotation;
+                });
+                
                 drawAnnotations();
                 updateAnnotationList();
             })
             .catch(error => {
                 console.error('Error loading annotations:', error);
+                alert(`Error loading annotations: ${error.message}`);
             });
     }
     
@@ -536,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Draw current annotation being edited (if any)
         if (currentAnnotation) {
-            console.log("Drawing current annotation with shapes:", currentAnnotation.shapes);
+            console.log("Drawing current annotation with shapes:", currentAnnotation.shapes.length);
             drawAnnotationShapes(currentAnnotation.shapes, true);
         }
         
@@ -547,16 +653,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function drawAnnotationShapes(shapes, isActive) {
-        if (!shapes) return;
+        if (!shapes || !Array.isArray(shapes)) {
+            console.warn('Invalid shapes data:', shapes);
+            return;
+        }
+        
         shapes.forEach(shape => {
             drawShape(shape, isActive);
         });
     }
     
     function drawShape(shape, isActive) {
+        // Check if coordinates are normalized (0-1) and denormalize if needed
+        let drawingShape = shape;
+        if (shape.version === "normalized-1.0" || shape.startX <= 1 && shape.startY <= 1 && 
+            (!('endX' in shape) || shape.endX <= 1) && (!('endY' in shape) || shape.endY <= 1)) {
+            // This is likely a normalized shape, denormalize it
+            drawingShape = denormalizeCoordinates(shape, canvas.width, canvas.height);
+        }
+        
         ctx.beginPath();
-        ctx.strokeStyle = shape.color || 'red';
-        ctx.lineWidth = shape.width || 3;
+        ctx.strokeStyle = drawingShape.color || 'red';
+        ctx.lineWidth = drawingShape.width || 3;
         
         // Add highlighting if this is the active annotation
         if (isActive) {
@@ -567,24 +685,24 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.shadowBlur = 0;
         }
         
-        switch (shape.tool) {
+        switch (drawingShape.tool) {
             case 'rectangle':
                 ctx.rect(
-                    shape.startX, 
-                    shape.startY, 
-                    shape.endX - shape.startX, 
-                    shape.endY - shape.startY
+                    drawingShape.startX, 
+                    drawingShape.startY, 
+                    drawingShape.endX - drawingShape.startX, 
+                    drawingShape.endY - drawingShape.startY
                 );
                 break;
                 
             case 'circle':
                 const radius = Math.sqrt(
-                    Math.pow(shape.endX - shape.startX, 2) + 
-                    Math.pow(shape.endY - shape.startY, 2)
+                    Math.pow(drawingShape.endX - drawingShape.startX, 2) + 
+                    Math.pow(drawingShape.endY - drawingShape.startY, 2)
                 );
                 ctx.arc(
-                    shape.startX, 
-                    shape.startY, 
+                    drawingShape.startX, 
+                    drawingShape.startY, 
                     radius, 
                     0, 
                     2 * Math.PI
@@ -592,42 +710,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
                 
             case 'line':
-                ctx.moveTo(shape.startX, shape.startY);
-                ctx.lineTo(shape.endX, shape.endY);
+                ctx.moveTo(drawingShape.startX, drawingShape.startY);
+                ctx.lineTo(drawingShape.endX, drawingShape.endY);
                 break;
                 
             case 'arrow':
                 // Draw line
-                ctx.moveTo(shape.startX, shape.startY);
-                ctx.lineTo(shape.endX, shape.endY);
+                ctx.moveTo(drawingShape.startX, drawingShape.startY);
+                ctx.lineTo(drawingShape.endX, drawingShape.endY);
                 
                 // Calculate arrow head
                 const angle = Math.atan2(
-                    shape.endY - shape.startY,
-                    shape.endX - shape.startX
+                    drawingShape.endY - drawingShape.startY,
+                    drawingShape.endX - drawingShape.startX
                 );
                 const headlen = 10; // Length of arrow head
                 
                 // Draw arrow head
                 ctx.lineTo(
-                    shape.endX - headlen * Math.cos(angle - Math.PI / 6),
-                    shape.endY - headlen * Math.sin(angle - Math.PI / 6)
+                    drawingShape.endX - headlen * Math.cos(angle - Math.PI / 6),
+                    drawingShape.endY - headlen * Math.sin(angle - Math.PI / 6)
                 );
-                ctx.moveTo(shape.endX, shape.endY);
+                ctx.moveTo(drawingShape.endX, drawingShape.endY);
                 ctx.lineTo(
-                    shape.endX - headlen * Math.cos(angle + Math.PI / 6),
-                    shape.endY - headlen * Math.sin(angle + Math.PI / 6)
+                    drawingShape.endX - headlen * Math.cos(angle + Math.PI / 6),
+                    drawingShape.endY - headlen * Math.sin(angle + Math.PI / 6)
                 );
                 break;
                 
             case 'text':
-                if (shape.finding) {
+                if (drawingShape.finding) {
                     ctx.font = '14px Arial';
-                    ctx.fillStyle = shape.color || 'red';
+                    ctx.fillStyle = drawingShape.color || 'red';
                     ctx.fillText(
-                        shape.finding,
-                        shape.startX,
-                        shape.startY
+                        drawingShape.finding,
+                        drawingShape.startX,
+                        drawingShape.startY
                     );
                 }
                 break;
@@ -639,28 +757,54 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateAnnotationList() {
-        const listElement = document.getElementById('annotation-list');
-        listElement.innerHTML = '';
+        const annotationList = document.getElementById('annotation-list');
+        annotationList.innerHTML = '';
         
         if (annotations.length === 0) {
-            listElement.innerHTML = '<p>No annotations yet.</p>';
+            annotationList.innerHTML = '<p>No annotations yet.</p>';
             return;
         }
         
-        annotations.forEach(annotation => {
-            const item = document.createElement('div');
-            item.className = 'annotation-item';
-            if (annotation.id === activeAnnotationId) {
-                item.classList.add('active');
+        annotations.forEach((annotation, index) => {
+            const annotationItem = document.createElement('div');
+            annotationItem.className = 'annotation-item';
+            
+            // Highlight active annotation
+            if (activeAnnotationId === annotation.id) {
+                annotationItem.classList.add('active');
             }
             
-            item.innerHTML = `
-                <h4>${annotation.finding}</h4>
-                <p><strong>Shapes:</strong> ${annotation.shapes ? annotation.shapes.length : 0}</p>
-                <p><strong>Confidence:</strong> ${annotation.confidence}/10</p>
-                <p><strong>Notes:</strong> ${annotation.notes || 'None'}</p>
+            // Format date
+            let dateStr = 'Unknown date';
+            try {
+                if (annotation.createdAt) {
+                    const date = new Date(annotation.createdAt);
+                    dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                } else if (annotation.timestamp) {
+                    const date = new Date(annotation.timestamp);
+                    dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                }
+            } catch (e) {
+                console.warn('Error formatting date:', e);
+            }
+            
+            // Format confidence
+            let confidenceStr = 'Unknown';
+            if (annotation.confidence !== undefined && annotation.confidence !== null) {
+                confidenceStr = annotation.confidence + '/10';
+            }
+            
+            // Count shapes
+            const shapeCount = annotation.shapes && Array.isArray(annotation.shapes) ? 
+                annotation.shapes.length : 0;
+            
+            annotationItem.innerHTML = `
+                <h4>${annotation.finding || 'Untitled'}</h4>
                 <p><strong>Reviewer:</strong> ${annotation.reviewerId}</p>
-                <p><strong>Time:</strong> ${new Date(annotation.timestamp).toLocaleString()}</p>
+                <p><strong>Date:</strong> ${dateStr}</p>
+                <p><strong>Confidence:</strong> ${confidenceStr}</p>
+                <p><strong>Shapes:</strong> ${shapeCount}</p>
+                <p><strong>Notes:</strong> ${annotation.notes || 'None'}</p>
                 <div class="annotation-actions">
                     <button class="edit-annotation" data-id="${annotation.id}">Edit</button>
                     <button class="delete-annotation" data-id="${annotation.id}">Delete</button>
@@ -668,19 +812,25 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             // Add event listeners
-            const editBtn = item.querySelector('.edit-annotation');
-            editBtn.addEventListener('click', () => {
+            const editButton = annotationItem.querySelector('.edit-annotation');
+            editButton.addEventListener('click', () => {
                 editAnnotation(annotation.id);
             });
             
-            const deleteBtn = item.querySelector('.delete-annotation');
-            deleteBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete this annotation?')) {
-                    deleteAnnotation(annotation.id);
-                }
+            const deleteButton = annotationItem.querySelector('.delete-annotation');
+            deleteButton.addEventListener('click', () => {
+                deleteAnnotation(annotation.id);
             });
             
-            listElement.appendChild(item);
+            annotationList.appendChild(annotationItem);
+            
+            // If this is the last annotation and it's active, ensure it's fully visible
+            if (index === annotations.length - 1 || activeAnnotationId === annotation.id) {
+                // Use setTimeout to ensure DOM is updated before scrolling
+                setTimeout(() => {
+                    annotationItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
         });
     }
     
@@ -715,6 +865,52 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('confidence-value').textContent = value;
     }
     
+    // Add utility functions for coordinate normalization
+    function normalizeCoordinates(shape, canvasWidth, canvasHeight) {
+        const normalizedShape = {...shape};
+        
+        // Convert canvas coordinates to image-relative coordinates
+        // First, adjust for image position offset
+        const imageRelativeStartX = shape.startX - imageRect.x;
+        const imageRelativeStartY = shape.startY - imageRect.y;
+        
+        // Then normalize to 0-1 range based on actual image dimensions
+        normalizedShape.startX = imageRelativeStartX / imageRect.width;
+        normalizedShape.startY = imageRelativeStartY / imageRect.height;
+        
+        if ('endX' in shape) {
+            const imageRelativeEndX = shape.endX - imageRect.x;
+            const imageRelativeEndY = shape.endY - imageRect.y;
+            
+            normalizedShape.endX = imageRelativeEndX / imageRect.width;
+            normalizedShape.endY = imageRelativeEndY / imageRect.height;
+        }
+        
+        return normalizedShape;
+    }
+    
+    function denormalizeCoordinates(shape, canvasWidth, canvasHeight) {
+        const denormalizedShape = {...shape};
+        
+        // Convert normalized (0-1) values to image-relative coordinates
+        const imageRelativeStartX = shape.startX * imageRect.width;
+        const imageRelativeStartY = shape.startY * imageRect.height;
+        
+        // Then adjust for image position offset to get canvas coordinates
+        denormalizedShape.startX = imageRelativeStartX + imageRect.x;
+        denormalizedShape.startY = imageRelativeStartY + imageRect.y;
+        
+        if ('endX' in shape) {
+            const imageRelativeEndX = shape.endX * imageRect.width;
+            const imageRelativeEndY = shape.endY * imageRect.height;
+            
+            denormalizedShape.endX = imageRelativeEndX + imageRect.x;
+            denormalizedShape.endY = imageRelativeEndY + imageRect.y;
+        }
+        
+        return denormalizedShape;
+    }
+    
     // Add event listeners for shape removal
     canvas.addEventListener('click', function(e) {
         if (document.getElementById('remove-shape').classList.contains('active')) {
@@ -722,8 +918,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Add event listener to update image rect when the image loads
+    dicomPreview.addEventListener('load', function() {
+        console.log('Image loaded, updating image rect');
+        updateImageRect();
+        drawAnnotations();
+    });
+    
     // Handle window resize
-    window.addEventListener('resize', () => {
-        setupCanvas();
+    window.addEventListener('resize', function() {
+        // Debounce the resize event
+        clearTimeout(window.resizeTimer);
+        window.resizeTimer = setTimeout(function() {
+            console.log('Window resized, updating canvas and image rect');
+            setupCanvas();
+        }, 250);
     });
 });
