@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consensus Viewer - DICOM Multi-Reviewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/annotation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consensus.css') }}">
+    <style>
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        
+        .comparison-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        
+        .viewer-panel {
+            flex: 1;
+            position: relative;
+            border-right: 1px solid #ddd;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: #f5f5f5;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .reviewer-toggle {
+            margin-bottom: 5px;
+        }
+        
+        .reviewer-toggle label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .color-indicator {
+            width: 15px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .view-controls {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .view-mode {
+            margin-bottom: 10px;
+        }
+        
+        .discrepancy-list {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .discrepancy-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .discrepancy-item h4 {
+            margin-top: 0;
+            color: #e53935;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #dicom-preview {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .annotation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background-color: #757575;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #616161;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add hidden input for current username -->
+    <input type="hidden" id="current-username" value="{{ current_user.username }}">
+    <input type="hidden" id="study-uid" value="{{ study_uid }}">
+    
+    <!-- Add navigation header -->
+    <div class="header">
+        <h1>Consensus Viewer</h1>
+        <div class="header-links">
+            <a href="{{ url_for('consensus_dashboard_page') }}">Dashboard</a>
+            <a href="{{ url_for('dicom_list') }}">Home</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="comparison-container">
+        <div class="viewer-panel">
+            <div class="canvas-container">
+                <img id="dicom-preview" alt="DICOM Preview">
+                <canvas id="annotation-canvas" class="annotation-layer"></canvas>
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <h2>Study Information</h2>
+            <div id="study-info">
+                <p><strong>Patient ID:</strong> <span id="patient-id">Loading...</span></p>
+                <p><strong>Study Date:</strong> <span id="study-date">Loading...</span></p>
+            </div>
+            
+            <div class="view-controls">
+                <h3>View Controls</h3>
+                <div class="view-mode">
+                    <label>
+                        <input type="radio" name="view-mode" value="overlay" checked> Overlay View
+                    </label>
+                    <br>
+                    <label>
+                        <input type="radio" name="view-mode" value="side-by-side"> Side by Side
+                    </label>
+                </div>
+                
+                <div class="discrepancy-toggle">
+                    <label>
+                        <input type="checkbox" id="show-discrepancies"> Show Discrepancies
+                    </label>
+                    <div id="discrepancy-container" style="margin-top: 5px; display: none;">
+                        <span class="badge badge-danger"><span id="discrepancy-count">0</span> discrepancies found</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <button id="prev-image" class="btn btn-secondary">Previous</button>
+                    <button id="next-image" class="btn btn-secondary">Next</button>
+                </div>
+            </div>
+            
+            <div id="reviewer-toggles">
+                <h3>Reviewers</h3>
+                <div id="reviewer-list">
+                    <p>Loading reviewers...</p>
+                </div>
+            </div>
+            
+            <div class="discrepancy-list">
+                <h3>Discrepancies</h3>
+                <div id="discrepancy-list">
+                    <p>Analyzing annotations...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/consensus.js') }}"></script>
+</body>
+</html>

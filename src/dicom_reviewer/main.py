@@ -9,10 +9,13 @@ import json
 import uuid
 import logging
 from datetime import datetime
-from src.dicom_reviewer.parsers.dicom_parser import DICOMParser
-from src.dicom_reviewer.schemas.dicom_metadata import DICOMMetadata
+from dicom_reviewer.parsers.dicom_parser import DICOMParser
+from dicom_reviewer.schemas.dicom_metadata import DICOMMetadata
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from src.dicom_reviewer.models.db.user import db, User, Session
+from dicom_reviewer.models.db import db
+from dicom_reviewer.models.db.user import User, Session
+from dicom_reviewer.models.db.annotation import Annotation
+from dicom_reviewer.api.consensus import consensus_bp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,9 +32,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # DICOM file directory
 DICOM_DIR = '/home/mogadaphy/dicom-research/dicom-files'
 
-# Initialize an in-memory store for annotations (would be a database in production)
-annotations_store = {}
-
 # Initialize the database
 db.init_app(app)
 
@@ -39,6 +39,9 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Register blueprints
+app.register_blueprint(consensus_bp)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -51,6 +54,26 @@ def initialize_database(app):
         with app.app_context():
             db.create_all()
             logger.info("Database tables created successfully")
+            
+            # Run consensus tables migration
+            try:
+                from dicom_reviewer.models.db.migrations.create_consensus_tables import create_consensus_tables
+                if create_consensus_tables():
+                    logger.info("Consensus tables created successfully")
+                else:
+                    logger.warning("Failed to create consensus tables")
+            except Exception as e:
+                logger.error(f"Error creating consensus tables: {e}")
+            
+            # Run annotations table update migration
+            try:
+                from dicom_reviewer.models.db.migrations.update_annotations_table import update_annotations_table
+                if update_annotations_table():
+                    logger.info("Annotations table updated successfully")
+                else:
+                    logger.warning("Failed to update annotations table")
+            except Exception as e:
+                logger.error(f"Error updating annotations table: {e}")
             
             # Create default users if they don't exist
             if User.query.count() == 0:
@@ -77,6 +100,10 @@ def initialize_database(app):
                 logger.info("Default users created")
             else:
                 logger.info("Default users already exist")
+                
+            # Log the number of existing annotations
+            annotation_count = Annotation.query.count()
+            logger.info(f"Found {annotation_count} existing annotations in the database")
                 
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
@@ -171,18 +198,16 @@ def logout():
 @login_required
 def profile():
     # Count user's annotations
-    annotation_count = 0
-    studies_with_annotations = set()
+    annotation_count = Annotation.query.filter_by(reviewer_id=current_user.id).count()
     
-    for study_uid, annotations in annotations_store.items():
-        for annotation in annotations:
-            if annotation.get('reviewerId') == current_user.username:
-                annotation_count += 1
-                studies_with_annotations.add(study_uid)
+    # Get unique studies with annotations
+    studies_with_annotations = db.session.query(Annotation.study_uid).filter_by(
+        reviewer_id=current_user.id
+    ).distinct().count()
     
     return render_template('profile.html', 
                           annotation_count=annotation_count,
-                          study_count=len(studies_with_annotations))
+                          study_count=studies_with_annotations)
 
 @app.route('/parse_dicom')
 @login_required
@@ -224,13 +249,111 @@ def viewer():
 
 @app.route('/annotate')
 @login_required
-def annotate_viewer():
+def annotate_viewer_query():
     study_uid = request.args.get('studyUid')
     
     if not study_uid:
         return "Study UID is required", 400
         
     return render_template('viewer.html')
+
+@app.route('/annotate/<study_uid>')
+@login_required
+def annotate_viewer(study_uid):
+    return render_template('annotate.html', study_uid=study_uid)
+
+@app.route('/consensus')
+@login_required
+def consensus_dashboard():
+    return render_template('consensus.html')
+
+@app.route('/consensus/dashboard')
+@login_required
+def consensus_dashboard_page():
+    """
+    Render the consensus dashboard page.
+    This page displays studies with multiple reviews for comparison.
+    """
+    return render_template('consensus_dashboard.html')
+
+@app.route('/api/studies/multi-review')
+@login_required
+def list_multi_review_studies():
+    """
+    List all studies that have annotations from multiple reviewers.
+    This endpoint is used for the Consensus Dashboard.
+    """
+    try:
+        # Query for studies with annotations from multiple reviewers
+        query = db.session.query(
+            Annotation.study_uid,
+            db.func.count(db.distinct(Annotation.reviewer_id)).label('reviewer_count'),
+            db.func.count(Annotation.id).label('annotation_count')
+        ).group_by(
+            Annotation.study_uid
+        ).having(
+            db.func.count(db.distinct(Annotation.reviewer_id)) > 1
+        ).order_by(
+            db.desc('reviewer_count'),
+            db.desc('annotation_count')
+        )
+        
+        studies = query.all()
+        
+        # Format the results
+        result = []
+        for study in studies:
+            study_uid = study.study_uid
+            
+            # Get the patient ID for this study
+            patient_id = "Unknown"
+            patient_name = "Unknown"
+            study_date = "Unknown"
+            
+            # Search for DICOM files in the entire DICOM_DIR
+            for root, _, files in os.walk(DICOM_DIR):
+                for file in files:
+                    if file.endswith('.dcm'):
+                        file_path = os.path.join(root, file)
+                        try:
+                            ds = pydicom.dcmread(file_path)
+                            if hasattr(ds, 'StudyInstanceUID') and ds.StudyInstanceUID == study_uid:
+                                if hasattr(ds, 'PatientID'):
+                                    patient_id = ds.PatientID
+                                if hasattr(ds, 'PatientName'):
+                                    patient_name = str(ds.PatientName)
+                                if hasattr(ds, 'StudyDate'):
+                                    study_date = ds.StudyDate
+                                break
+                        except Exception as e:
+                            app.logger.error(f"Error reading DICOM file {file_path}: {str(e)}")
+                            continue
+                if patient_id != "Unknown":
+                    break
+            
+            # Get the reviewers for this study
+            reviewers_query = db.session.query(User.username).join(
+                Annotation, Annotation.reviewer_id == User.id
+            ).filter(
+                Annotation.study_uid == study_uid
+            ).distinct()
+            
+            reviewer_names = [r[0] for r in reviewers_query.all()]
+            
+            result.append({
+                'studyUid': study_uid,
+                'patientId': patient_id,
+                'patientName': patient_name,
+                'studyDate': study_date,
+                'reviewerCount': study.reviewer_count,
+                'annotationCount': study.annotation_count,
+                'reviewers': reviewer_names
+            })
+        
+        return jsonify(result)
+    except Exception as e:
+        app.logger.error(f"Error listing multi-review studies: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/dicom/<study_uid>/metadata', methods=['GET'])
 @login_required
@@ -398,91 +521,297 @@ def get_dicom_file(study_uid, series_uid, instance_uid):
 def create_annotation():
     try:
         data = request.json
+        logger.info(f"Received annotation request with {len(data.get('shapes', []))} shapes")
         
-        # Add a unique ID if not provided
-        if 'id' not in data:
-            data['id'] = str(uuid.uuid4())
-            
-        # Use the current user's ID instead of the provided reviewer_id
-        data['reviewerId'] = current_user.username
-            
-        # Add timestamp if not provided
-        if 'timestamp' not in data:
-            data['timestamp'] = datetime.now().isoformat()
-            
         # Get study ID
         study_uid = data.get('studyUid')
         
         if not study_uid:
             return jsonify({"error": "Study UID is required"}), 400
             
-        # Initialize study annotations if needed
-        if study_uid not in annotations_store:
-            annotations_store[study_uid] = []
-            
         # Check if this is an update to an existing annotation
-        existing_index = next((i for i, a in enumerate(annotations_store[study_uid]) 
-                              if a.get('id') == data.get('id')), -1)
-        
-        # Only allow update if the annotation belongs to the current user
-        if existing_index >= 0:
-            if annotations_store[study_uid][existing_index].get('reviewerId') != current_user.username:
+        annotation_id = data.get('id')
+        if annotation_id:
+            # Look for existing annotation
+            annotation = Annotation.query.filter_by(id=annotation_id).first()
+            
+            # Verify ownership
+            if annotation and annotation.reviewer_id != current_user.id:
                 return jsonify({"error": "You can only update your own annotations"}), 403
                 
-            # Update existing annotation
-            annotations_store[study_uid][existing_index] = data
+            if annotation:
+                # Update existing annotation
+                logger.info(f"Updating existing annotation {annotation_id}")
+                annotation.study_uid = study_uid
+                annotation.series_uid = data.get('seriesUid')
+                annotation.instance_uid = data.get('instanceUid')
+                annotation.finding = data.get('finding')
+                annotation.confidence_level = data.get('confidence', 0.0)  # Updated field name
+                annotation.notes = data.get('notes')
+                annotation.region_data = data.get('shapes')  # Updated field name
+                annotation.updated_at = datetime.utcnow()
+            else:
+                # Create new annotation with specified ID
+                logger.info(f"Creating new annotation with specified ID {annotation_id}")
+                annotation = Annotation.from_dict(data, reviewer_id=current_user.id)
         else:
-            # Add new annotation
-            annotations_store[study_uid].append(data)
+            # Create new annotation
+            logger.info("Creating new annotation with generated ID")
+            annotation = Annotation.from_dict(data, reviewer_id=current_user.id)
         
-        return jsonify({"success": True, "id": data['id']}), 201
+        # Save to database
+        db.session.add(annotation)
+        db.session.commit()
+        logger.info(f"Annotation saved successfully with ID {annotation.id}")
+        
+        # Return the full annotation data to ensure frontend has correct structure
+        return jsonify({"success": True, "id": annotation.id, "annotation": annotation.to_dict()}), 201
     except Exception as e:
-        print(f"Error creating annotation: {e}")
+        db.session.rollback()
+        logger.error(f"Error creating annotation: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/annotations/<study_uid>', methods=['GET'])
 @login_required
 def get_study_annotations(study_uid):
     try:
-        # For radiologists, only return their own annotations
-        # For admins, return all annotations
+        # Query based on user role
         if current_user.role == 'radiologist':
-            filtered_annotations = [
-                a for a in annotations_store.get(study_uid, [])
-                if a.get('reviewerId') == current_user.username
-            ]
-            return jsonify(filtered_annotations)
+            # Radiologists can only see their own annotations
+            annotations = Annotation.query.filter_by(
+                study_uid=study_uid, 
+                reviewer_id=current_user.id
+            ).all()
+            logger.info(f"Retrieved {len(annotations)} annotations for radiologist {current_user.username}")
         else:
-            # Admin can see all annotations
-            return jsonify(annotations_store.get(study_uid, []))
+            # Admins can see all annotations
+            annotations = Annotation.query.filter_by(study_uid=study_uid).all()
+            logger.info(f"Retrieved {len(annotations)} annotations for admin {current_user.username}")
+        
+        # Convert to dictionary format for API response
+        result = [annotation.to_dict() for annotation in annotations]
+        
+        # Log the shape counts for debugging
+        for i, ann in enumerate(result):
+            logger.debug(f"Annotation {i+1}: {len(ann.get('shapes', []))} shapes")
+            
+        return jsonify(result)
     except Exception as e:
-        print(f"Error getting annotations: {e}")
+        logger.error(f"Error getting annotations: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/annotations/<study_uid>/<annotation_id>', methods=['DELETE'])
 @login_required
 def delete_annotation(study_uid, annotation_id):
     try:
-        if study_uid in annotations_store:
-            # Find the annotation
-            annotation_index = next((i for i, a in enumerate(annotations_store[study_uid]) 
-                                    if a.get('id') == annotation_id), -1)
+        # Find the annotation
+        annotation = Annotation.query.filter_by(
+            id=annotation_id,
+            study_uid=study_uid
+        ).first()
+        
+        if not annotation:
+            return jsonify({"error": "Annotation not found"}), 404
             
-            if annotation_index == -1:
-                return jsonify({"error": "Annotation not found"}), 404
-                
-            # Check if the user owns this annotation
-            if annotations_store[study_uid][annotation_index].get('reviewerId') != current_user.username:
-                return jsonify({"error": "You can only delete your own annotations"}), 403
-            
-            # Remove the annotation
-            annotations_store[study_uid].pop(annotation_index)
-            return jsonify({"success": True})
-        else:
-            return jsonify({"error": "Study not found"}), 404
+        # Check if the user owns this annotation
+        if annotation.reviewer_id != current_user.id:
+            return jsonify({"error": "You can only delete your own annotations"}), 403
+        
+        # Remove the annotation
+        db.session.delete(annotation)
+        db.session.commit()
+        
+        return jsonify({"success": True})
     except Exception as e:
-        print(f"Error deleting annotation: {e}")
+        db.session.rollback()
+        logger.error(f"Error deleting annotation: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/dicom/studies', methods=['GET'])
+@login_required
+def get_dicom_studies():
+    """
+    Get a list of all available DICOM studies.
+    """
+    try:
+        # Get unique study UIDs from the DICOM directory
+        studies = []
+        for study_dir in os.listdir(DICOM_DIR):
+            study_path = os.path.join(DICOM_DIR, study_dir)
+            if os.path.isdir(study_path):
+                # Get basic metadata for the study
+                study_metadata = {
+                    'studyUid': study_dir,
+                    'patientName': 'Unknown',  # This would be populated from actual DICOM metadata
+                    'studyDate': 'Unknown',    # This would be populated from actual DICOM metadata
+                    'modality': 'Unknown',     # This would be populated from actual DICOM metadata
+                    'annotationCount': Annotation.query.filter_by(study_uid=study_dir).count()
+                }
+                
+                # Try to get more metadata from the first DICOM file
+                for root, _, files in os.walk(study_path):
+                    for file in files:
+                        if file.endswith('.dcm'):
+                            try:
+                                dcm_path = os.path.join(root, file)
+                                ds = pydicom.dcmread(dcm_path)
+                                if hasattr(ds, 'PatientName'):
+                                    study_metadata['patientName'] = str(ds.PatientName)
+                                if hasattr(ds, 'StudyDate'):
+                                    study_metadata['studyDate'] = str(ds.StudyDate)
+                                if hasattr(ds, 'Modality'):
+                                    study_metadata['modality'] = str(ds.Modality)
+                                break
+                            except Exception as e:
+                                logger.warning(f"Error reading DICOM metadata: {e}")
+                
+                studies.append(study_metadata)
+        
+        return jsonify(studies)
+    except Exception as e:
+        logger.error(f"Error getting DICOM studies: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/users', methods=['GET'])
+@login_required
+def get_users():
+    """
+    Get a list of all users who can be added as reviewers.
+    """
+    try:
+        users = User.query.all()
+        return jsonify([{
+            'id': user.id,
+            'username': user.username,
+            'fullName': user.full_name,
+            'role': user.role
+        } for user in users])
+    except Exception as e:
+        logger.error(f"Error getting users: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/consensus/studies', methods=['GET'])
+@login_required
+def list_consensus_studies():
+    """
+    List all studies that have annotations from multiple reviewers.
+    This endpoint is used for the Consensus Dashboard.
+    """
+    try:
+        # Query for studies with annotations from multiple reviewers
+        query = db.session.query(
+            Annotation.study_uid,
+            db.func.count(db.distinct(Annotation.reviewer_id)).label('reviewer_count'),
+            db.func.count(Annotation.id).label('annotation_count')
+        ).group_by(
+            Annotation.study_uid
+        ).having(
+            db.func.count(db.distinct(Annotation.reviewer_id)) > 1
+        ).order_by(
+            db.desc('reviewer_count'),
+            db.desc('annotation_count')
+        )
+        
+        studies = query.all()
+        
+        # Format the results
+        result = []
+        for study in studies:
+            study_uid = study.study_uid
+            
+            # Get the patient ID for this study
+            patient_id = "Unknown"
+            patient_name = "Unknown"
+            study_date = "Unknown"
+            
+            # Search for DICOM files in the entire DICOM_DIR
+            for root, _, files in os.walk(DICOM_DIR):
+                for file in files:
+                    if file.endswith('.dcm'):
+                        file_path = os.path.join(root, file)
+                        try:
+                            ds = pydicom.dcmread(file_path)
+                            if hasattr(ds, 'StudyInstanceUID') and ds.StudyInstanceUID == study_uid:
+                                if hasattr(ds, 'PatientID'):
+                                    patient_id = ds.PatientID
+                                if hasattr(ds, 'PatientName'):
+                                    patient_name = str(ds.PatientName)
+                                if hasattr(ds, 'StudyDate'):
+                                    study_date = ds.StudyDate
+                                break
+                        except Exception as e:
+                            app.logger.error(f"Error reading DICOM file {file_path}: {str(e)}")
+                            continue
+                if patient_id != "Unknown":
+                    break
+            
+            # Check if there's an existing consensus session for this study
+            consensus_sessions = ConsensusSession.query.filter_by(study_uid=study_uid).all()
+            
+            result.append({
+                'studyUid': study_uid,
+                'patientId': patient_id,
+                'patientName': patient_name,
+                'studyDate': study_date,
+                'reviewerCount': study.reviewer_count,
+                'annotationCount': study.annotation_count,
+                'hasConsensusSession': len(consensus_sessions) > 0,
+                'consensusSessions': [session.to_dict() for session in consensus_sessions]
+            })
+        
+        return jsonify(result)
+    except Exception as e:
+        app.logger.error(f"Error listing consensus studies: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/consensus/viewer/<study_uid>')
+@login_required
+def consensus_viewer(study_uid):
+    """
+    Render the consensus viewer page for a specific study.
+    This page allows comparing annotations from different reviewers.
+    """
+    return render_template('consensus_viewer.html', study_uid=study_uid)
+
+@app.route('/api/studies/<study_uid>/annotations/by-reviewer', methods=['GET'])
+@login_required
+def get_study_annotations_by_reviewer(study_uid):
+    """
+    Get all annotations for a study, grouped by reviewer.
+    This endpoint is used for the Consensus Viewer.
+    """
+    try:
+        # Get all annotations for this study
+        annotations = Annotation.query.filter_by(study_uid=study_uid).all()
+        
+        if not annotations:
+            return jsonify([]), 404
+        
+        # Group annotations by reviewer
+        reviewer_annotations = {}
+        for annotation in annotations:
+            reviewer_id = annotation.reviewer_id
+            
+            # Get reviewer username
+            reviewer = User.query.get(reviewer_id)
+            reviewer_name = reviewer.username if reviewer else f"User {reviewer_id}"
+            
+            if reviewer_name not in reviewer_annotations:
+                reviewer_annotations[reviewer_name] = {
+                    'reviewerId': reviewer_id,
+                    'reviewerName': reviewer_name,
+                    'annotations': []
+                }
+            
+            reviewer_annotations[reviewer_name]['annotations'].append(annotation.to_dict())
+        
+        # Convert to list for JSON response
+        result = list(reviewer_annotations.values())
+        
+        return jsonify(result)
+    except Exception as e:
+        app.logger.error(f"Error getting annotations by reviewer: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

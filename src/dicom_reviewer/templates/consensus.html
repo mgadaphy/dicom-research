@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consensus Dashboard - DICOM Multi-Reviewer System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/annotation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consensus.css') }}">
+    <style>
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        
+        .sidebar {
+            width: 300px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .session-list {
+            margin-bottom: 20px;
+        }
+        
+        .session-item {
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+            border-left: 4px solid #4CAF50;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .session-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .session-item h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .session-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .session-item .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        
+        .create-session-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0d8aee;
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .comparison-view {
+            display: flex;
+            height: 100%;
+        }
+        
+        .comparison-panel {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0 5px;
+            overflow: hidden;
+        }
+        
+        .comparison-panel h3 {
+            margin-top: 0;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 50px);
+            background-color: #000;
+        }
+        
+        .canvas-container img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .canvas-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .discussion-panel {
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .discussion-header {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .discussion-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        
+        .discussion-input {
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            display: flex;
+        }
+        
+        .discussion-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        .message-mine {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        
+        .message-other {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        
+        .message .author {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .message .time {
+            font-size: 11px;
+            color: #888;
+            text-align: right;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom-color: #2196F3;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .discrepancy-item {
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+        }
+        
+        .discrepancy-item h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .discrepancy-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .reliability-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .metric-card h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-description {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .vote-panel {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .vote-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        
+        .vote-agree {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .vote-agree:hover {
+            background-color: #3e8e41;
+        }
+        
+        .vote-disagree {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .vote-disagree:hover {
+            background-color: #d32f2f;
+        }
+        
+        .vote-abstain {
+            background-color: #9e9e9e;
+            color: white;
+        }
+        
+        .vote-abstain:hover {
+            background-color: #757575;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add hidden input for current username -->
+    <input type="hidden" id="current-username" value="{{ current_user.username }}">
+    <input type="hidden" id="current-user-id" value="{{ current_user.id }}">
+    
+    <!-- Add navigation header -->
+    <div class="header">
+        <h1>DICOM Multi-Reviewer System</h1>
+        <div class="header-links">
+            <a href="{{ url_for('dicom_list') }}">DICOM List</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <h2>Consensus Dashboard</h2>
+            <div class="session-controls">
+                <button id="create-session-btn" class="btn btn-primary">Create New Session</button>
+            </div>
+            
+            <div class="create-session-form" id="create-session-form" style="display: none;">
+                <h3>Create Consensus Session</h3>
+                <div class="form-group">
+                    <label for="session-title">Title:</label>
+                    <input type="text" id="session-title" placeholder="Enter session title">
+                </div>
+                <div class="form-group">
+                    <label for="session-study">Study:</label>
+                    <select id="session-study">
+                        <option value="">Select a study</option>
+                        <!-- Studies will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="session-description">Description:</label>
+                    <textarea id="session-description" placeholder="Enter session description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="session-reviewers">Invite Reviewers:</label>
+                    <select id="session-reviewers" multiple>
+                        <!-- Reviewers will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button id="save-session-btn" class="btn btn-primary">Create Session</button>
+                    <button id="cancel-session-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+            
+            <h3>Active Sessions</h3>
+            <div id="active-sessions" class="session-list">
+                <!-- Active sessions will be populated dynamically -->
+                <div class="session-item">
+                    <h3>Loading sessions...</h3>
+                </div>
+            </div>
+            
+            <h3>Completed Sessions</h3>
+            <div id="completed-sessions" class="session-list">
+                <!-- Completed sessions will be populated dynamically -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div id="session-welcome" class="welcome-screen">
+                <h2>Welcome to the Consensus Dashboard</h2>
+                <p>Select a session from the sidebar or create a new one to begin.</p>
+                <p>The Consensus Dashboard allows you to:</p>
+                <ul>
+                    <li>Compare annotations from multiple reviewers</li>
+                    <li>Identify and resolve discrepancies</li>
+                    <li>Discuss findings with other reviewers</li>
+                    <li>Vote on consensus findings</li>
+                    <li>Generate consensus reports</li>
+                </ul>
+            </div>
+            
+            <div id="session-detail" style="display: none;">
+                <div class="session-header">
+                    <h2 id="session-detail-title">Session Title</h2>
+                    <p id="session-detail-description">Session description will appear here.</p>
+                    <div class="session-meta">
+                        <span><strong>Created by:</strong> <span id="session-creator">Username</span></span>
+                        <span><strong>Study:</strong> <span id="session-study-uid">Study UID</span></span>
+                        <span><strong>Reviewers:</strong> <span id="session-reviewer-count">0</span></span>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="comparison">Comparison View</div>
+                    <div class="tab" data-tab="discrepancies">Discrepancies</div>
+                    <div class="tab" data-tab="discussions">Discussions</div>
+                    <div class="tab" data-tab="reliability">Reliability Metrics</div>
+                </div>
+                
+                <div id="comparison-tab" class="tab-content active">
+                    <div class="comparison-view">
+                        <div class="comparison-panel">
+                            <h3>Reviewer 1</h3>
+                            <div class="canvas-container">
+                                <img id="dicom-preview-1" alt="DICOM Preview">
+                                <canvas id="annotation-canvas-1" class="annotation-layer"></canvas>
+                            </div>
+                        </div>
+                        <div class="comparison-panel">
+                            <h3>Reviewer 2</h3>
+                            <div class="canvas-container">
+                                <img id="dicom-preview-2" alt="DICOM Preview">
+                                <canvas id="annotation-canvas-2" class="annotation-layer"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="vote-panel">
+                        <button class="vote-button vote-agree">Agree</button>
+                        <button class="vote-button vote-disagree">Disagree</button>
+                        <button class="vote-button vote-abstain">Abstain</button>
+                    </div>
+                </div>
+                
+                <div id="discrepancies-tab" class="tab-content">
+                    <h3>Detected Discrepancies</h3>
+                    <div id="discrepancies-list">
+                        <!-- Discrepancies will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div id="discussions-tab" class="tab-content">
+                    <h3>Discussions</h3>
+                    <button id="new-discussion-btn" class="btn btn-primary">New Discussion</button>
+                    
+                    <div id="discussions-list">
+                        <!-- Discussions will be populated dynamically -->
+                    </div>
+                    
+                    <div class="discussion-panel" id="discussion-detail" style="display: none;">
+                        <div class="discussion-header">
+                            <h3 id="discussion-title">Discussion Title</h3>
+                        </div>
+                        <div class="discussion-messages" id="discussion-messages">
+                            <!-- Messages will be populated dynamically -->
+                        </div>
+                        <div class="discussion-input">
+                            <input type="text" id="message-input" placeholder="Type your message...">
+                            <button id="send-message-btn" class="btn btn-primary">Send</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="reliability-tab" class="tab-content">
+                    <h3>Inter-Rater Reliability Metrics</h3>
+                    
+                    <div class="reliability-metrics">
+                        <div class="metric-card">
+                            <h3>Cohen's Kappa</h3>
+                            <div class="metric-value" id="kappa-value">-</div>
+                            <div class="metric-description">Measures agreement between reviewers</div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h3>Percent Agreement</h3>
+                            <div class="metric-value" id="percent-agreement">-</div>
+                            <div class="metric-description">Percentage of findings that match</div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h3>Reliability Level</h3>
+                            <div class="metric-value" id="reliability-level">-</div>
+                            <div class="metric-description">Qualitative assessment of reliability</div>
+                        </div>
+                    </div>
+                    
+                    <h3>Create Consensus Result</h3>
+                    <div class="create-session-form">
+                        <div class="form-group">
+                            <label for="consensus-finding">Consensus Finding:</label>
+                            <input type="text" id="consensus-finding" placeholder="Enter consensus finding">
+                        </div>
+                        <div class="form-group">
+                            <label for="consensus-confidence">Confidence Level:</label>
+                            <input type="range" id="consensus-confidence" min="1" max="10" value="8">
+                            <span id="consensus-confidence-value">8</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="consensus-notes">Notes:</label>
+                            <textarea id="consensus-notes" placeholder="Enter consensus notes"></textarea>
+                        </div>
+                        <button id="create-consensus-btn" class="btn btn-primary">Create Consensus Result</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/consensus.js') }}"></script>
+</body>
+</html>

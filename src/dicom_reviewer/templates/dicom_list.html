@@ -102,6 +102,9 @@
         <h1>DICOM Multi-Reviewer System</h1>
         <div class="header-links">
             <a href="{{ url_for('dicom_list') }}">DICOM List</a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('consensus_dashboard_page') }}">Consensus Dashboard</a>
+            {% endif %}
             <a href="{{ url_for('profile') }}">Profile</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         </div>

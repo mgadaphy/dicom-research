@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consensus Dashboard - DICOM Multi-Reviewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/viewer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/annotation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/consensus.css') }}">
+    <style>
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        
+        .study-list {
+            margin: 20px;
+        }
+        
+        .study-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .study-card:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .study-card h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        
+        .study-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .study-actions {
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .reviewer-badge {
+            display: inline-block;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Add hidden input for current username -->
+    <input type="hidden" id="current-username" value="{{ current_user.username }}">
+    
+    <!-- Add navigation header -->
+    <div class="header">
+        <h1>Consensus Dashboard</h1>
+        <div class="header-links">
+            <a href="{{ url_for('dicom_list') }}">Home</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    
+    <div class="study-list">
+        <h2>Studies with Multiple Reviews</h2>
+        <div id="studies-container">
+            <p>Loading studies...</p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch studies with multiple reviews
+            fetch('/api/studies/multi-review')
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load studies');
+                    return response.json();
+                })
+                .then(studies => {
+                    displayStudies(studies);
+                })
+                .catch(error => {
+                    console.error('Error loading studies:', error);
+                    document.getElementById('studies-container').innerHTML = 
+                        `<p class="error">Error loading studies: ${error.message}</p>`;
+                });
+        });
+        
+        function displayStudies(studies) {
+            const container = document.getElementById('studies-container');
+            
+            if (studies.length === 0) {
+                container.innerHTML = '<p>No studies with multiple reviews found.</p>';
+                return;
+            }
+            
+            let html = '';
+            studies.forEach(study => {
+                html += `
+                    <div class="study-card">
+                        <h3>Patient ID: ${study.patientId || 'Unknown'}</h3>
+                        <div class="study-info">
+                            <div>
+                                <p><strong>Patient Name:</strong> ${study.patientName || 'Unknown'}</p>
+                                <p><strong>Study Date:</strong> ${study.studyDate || 'Unknown'}</p>
+                                <p><strong>Study UID:</strong> ${study.studyUid}</p>
+                                <p><strong>Reviewers:</strong> ${study.reviewerCount}</p>
+                                <p><strong>Annotations:</strong> ${study.annotationCount}</p>
+                            </div>
+                        </div>
+                        <div class="study-actions">
+                            <a href="/consensus/viewer/${study.studyUid}" class="btn">View Comparison</a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

@@ -182,43 +182,85 @@
 #annotation-list {
     max-height: 300px;
     overflow-y: auto;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+#annotation-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#annotation-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#annotation-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#annotation-list::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .annotation-item {
-    padding: 10px;
-    margin-bottom: 8px;
-    background-color: #f0f0f0;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
     border-left: 4px solid #4CAF50;
-    border-radius: 4px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.annotation-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .annotation-item.active {
     background-color: #e8f5e9;
     border-left: 4px solid #2196F3;
-    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
 }
 
 .annotation-item h4 {
     margin-top: 0;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
 }
 
 .annotation-item p {
-    margin: 5px 0;
+    margin: 6px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.annotation-item p strong {
+    color: #333;
+    font-weight: 600;
 }
 
 .annotation-actions {
     display: flex;
-    gap: 5px;
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 12px;
+    margin-bottom: 5px;
 }
 
 .annotation-actions button {
-    padding: 5px 10px;
+    padding: 6px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
 }
 
 .edit-annotation {
@@ -226,9 +268,17 @@
     color: white;
 }
 
+.edit-annotation:hover {
+    background-color: #0d8aee;
+}
+
 .delete-annotation {
     background-color: #f44336;
     color: white;
+}
+
+.delete-annotation:hover {
+    background-color: #e53935;
 }
 
 /* Canvas Container for Annotations */

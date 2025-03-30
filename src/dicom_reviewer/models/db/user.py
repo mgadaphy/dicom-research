@@ -8,7 +8,8 @@ import logging
 # Configure logging
 logger = logging.getLogger(__name__)
 
-db = SQLAlchemy()
+# Import the db instance from the db package instead of creating a new one
+from dicom_reviewer.models.db import db
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'

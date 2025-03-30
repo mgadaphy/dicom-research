@@ -10,6 +10,8 @@ The DICOM Multi-Reviewer System is a collaborative medical imaging platform desi
 - **Annotation Tools:** Multi-shape drawing tools for identifying and marking areas of interest
 - **User Authentication:** Role-based access with separate radiologist and admin views
 - **Collaborative Review:** Tools to enable multiple radiologists to review the same studies
+- **Discrepancy Detection:** Automatic identification of spatial, classification, and presence discrepancies between reviewers
+- **Consensus Building:** Tools to facilitate reaching consensus on discrepant findings
 
 ## Installation & Setup
 
@@ -79,7 +81,8 @@ multi-reviewer/
 │       │   ├── annotation.py       # Annotation data models
 │       │   ├── consensus_engine.py # Consensus comparison logic
 │       │   └── db/
-│       │       └── user.py         # User authentication models
+│       │       ├── user.py         # User authentication models
+│       │       └── consensus.py    # Consensus data models
 │       ├── parsers/
 │       │   └── dicom_parser.py     # DICOM file handling
 │       ├── schemas/
@@ -90,13 +93,15 @@ multi-reviewer/
 │       │   │   └── annotation.css  # Annotation tools styling
 │       │   └── js/
 │       │       ├── annotation-viewer.js # Annotation tools
+│       │       ├── consensus.js    # Consensus and discrepancy detection
 │       │       └── simple-viewer.js     # DICOM viewer
 │       └── templates/
 │           ├── dicom_list.html     # DICOM file listing
 │           ├── login.html          # Login page
 │           ├── profile.html        # User profile page
 │           ├── register.html       # Registration page
-│           └── viewer.html         # DICOM viewer and annotation page
+│           ├── viewer.html         # DICOM viewer and annotation page
+│           └── consensus_viewer.html # Multi-reviewer consensus view
 ├── tests/                          # Test files
 ├── docker-compose.yml              # Docker setup
 └── requirements.txt                # Python dependencies
@@ -117,6 +122,12 @@ multi-reviewer/
 - Registration and authentication
 - Role-based access control
 - User profile management
+
+#### Discrepancy Detection System
+- Identifies spatial discrepancies (annotations in similar locations with insufficient overlap)
+- Detects classification discrepancies (same location, different findings)
+- Highlights presence discrepancies (findings marked by one reviewer but not others)
+- Visual indicators for different discrepancy types
 
 #### In-Memory Data Storage
 - User database (SQLite)
@@ -147,10 +158,22 @@ multi-reviewer/
 - Click "Delete" to remove an annotation
 - Only the creator of an annotation can edit or delete it
 
+### Consensus Review
+1. Access the consensus viewer for studies with multiple reviews
+2. Toggle reviewers on/off to compare different annotations
+3. Click "Show Discrepancies" to highlight differences between reviewers
+4. Discrepancies are color-coded by type:
+   - Yellow: Spatial discrepancies (similar location, insufficient overlap)
+   - Magenta: Classification discrepancies (same location, different findings)
+   - Orange/Blue: Presence discrepancies (findings marked by one reviewer but not others)
+5. Click "Focus" on a discrepancy to highlight it on the image
+6. Toggle between "Overlay View" and "Side by Side" to compare annotations
+
 ### Administrator Functions
 - Log in with the admin account
 - Admin users can see annotations from all radiologists
 - Radiologists can only see their own annotations
+- Admins can initiate consensus reviews for studies with multiple annotations
 
 ## Technologies Used
 
@@ -171,10 +194,13 @@ multi-reviewer/
 
 ### Planned Features
 
-#### Consensus Dashboard
+#### Consensus Dashboard Enhancements
+- Discrepancy detection and highlighting
+- Overlay view of annotations from multiple reviewers
 - Side-by-side comparison of annotations
-- Discrepancy highlighting
 - Statistical analysis of inter-reviewer agreement
+- Discussion threads for resolving discrepancies
+- Voting mechanism for consensus building
 
 #### Persistent Data Storage
 - Database storage for annotations
@@ -199,21 +225,17 @@ multi-reviewer/
 4. Run tests
 5. Submit a pull request
 
-### Coding Standards
-- Follow PEP 8 for Python code
-- Document functions and classes
-- Write unit tests for new functionality
+## Changelog
 
-### Testing
-Run tests with:
-```bash
-python -m unittest discover tests
-```
+### v0.2.0 (March 2025)
+- Added consensus viewer for comparing annotations from multiple reviewers
+- Implemented discrepancy detection for spatial, classification, and presence differences
+- Added visual highlighting of discrepancies with color-coding
+- Added focus functionality to highlight specific discrepancies
+- Fixed various bugs in annotation rendering and discrepancy detection
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-- OpenSource DICOM Toolkit
-- Flask and SQLAlchemy communities
-- Medical imaging experts who provided guidance and feedback
+### v0.1.0 (January 2025)
+- Initial release with basic DICOM viewing and annotation capabilities
+- User authentication and role-based access control
+- In-memory annotation storage
+- Basic annotation tools (rectangle, circle, line, arrow, text)
