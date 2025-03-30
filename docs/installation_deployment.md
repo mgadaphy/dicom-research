@@ -100,8 +100,8 @@ flowchart TD
 
 3. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/dicom-multi-reviewer.git multi-reviewer
-   cd multi-reviewer
+   git clone https://github.com/mgadaphy/dicom-research.git
+   cd dicom-research/multi-reviewer
    ```
 
 ### Python Environment Setup
