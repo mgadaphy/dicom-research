@@ -42,8 +42,8 @@ dicom-research/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/dicom-multi-reviewer.git
-cd dicom-multi-reviewer
+git clone https://github.com/mgadaphy/dicom-research.git
+cd dicom-research/multi-reviewer
 ```
 
 2. Create and activate a virtual environment:
