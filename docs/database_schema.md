@@ -57,37 +57,6 @@ erDiagram
     int creator_id FK
   }
   
-  CONSENSUS_DISCUSSIONS {
-    string id PK
-    string session_id FK
-    string title
-    datetime created_at
-    datetime updated_at
-    string status
-    int creator_id FK
-    string annotation_id FK
-  }
-  
-  CONSENSUS_COMMENTS {
-    string id PK
-    string discussion_id FK
-    text content
-    datetime created_at
-    datetime updated_at
-    int author_id FK
-  }
-  
-  CONSENSUS_VOTES {
-    string id PK
-    string session_id FK
-    string value
-    datetime created_at
-    datetime updated_at
-    int reviewer_id FK
-    string annotation_id FK
-    string discussion_id FK
-  }
-  
   CONSENSUS_ANNOTATION_ASSOCIATION {
     string session_id FK
     string annotation_id FK
@@ -101,15 +70,7 @@ erDiagram
   USERS ||--o{ SESSIONS : has
   USERS ||--o{ ANNOTATIONS : creates
   USERS ||--o{ CONSENSUS_SESSIONS : creates
-  USERS ||--o{ CONSENSUS_DISCUSSIONS : creates
-  USERS ||--o{ CONSENSUS_COMMENTS : authors
-  USERS ||--o{ CONSENSUS_VOTES : casts
   
-  CONSENSUS_SESSIONS ||--o{ CONSENSUS_DISCUSSIONS : contains
-  CONSENSUS_SESSIONS ||--o{ CONSENSUS_VOTES : has
-  CONSENSUS_DISCUSSIONS ||--o{ CONSENSUS_COMMENTS : contains
-  
-  ANNOTATIONS ||--o{ CONSENSUS_VOTES : receives
   ANNOTATIONS }|--o{ CONSENSUS_SESSIONS : included_in
   
   CONSENSUS_SESSIONS }|--o{ USERS : includes
@@ -239,10 +200,6 @@ class ConsensusSession(db.Model):
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     creator = relationship('User', foreign_keys=[creator_id])
     
-    # Relationships
-    discussions = relationship('ConsensusDiscussion', back_populates='session', cascade='all, delete-orphan')
-    votes = relationship('ConsensusVote', back_populates='session', cascade='all, delete-orphan')
-    
     # Many-to-many relationship with annotations
     annotations = db.relationship('Annotation', 
                                 secondary='consensus_annotation_association',
@@ -262,117 +219,7 @@ Key fields:
 - `created_at`, `updated_at`: Timestamps
 - `status`: Session status
 - `creator_id`: Foreign key to the users table
-- Relationships to discussions, votes, annotations, and reviewers
-
-### Consensus Discussions Table
-
-The `consensus_discussions` table stores discussion threads within consensus sessions:
-
-```python
-# From consensus.py
-class ConsensusDiscussion(db.Model):
-    __tablename__ = 'consensus_discussions'
-    
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    session_id = db.Column(db.String(36), db.ForeignKey('consensus_sessions.id'), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    status = db.Column(db.String(20), default='open')  # open, resolved, closed
-    
-    # Creator of the discussion
-    creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    creator = relationship('User', foreign_keys=[creator_id])
-    
-    # Optional reference to specific annotations
-    annotation_id = db.Column(db.String(36), db.ForeignKey('annotations.id'), nullable=True)
-    annotation = relationship('Annotation', foreign_keys=[annotation_id])
-    
-    # Relationships
-    session = relationship('ConsensusSession', back_populates='discussions')
-    comments = relationship('ConsensusComment', back_populates='discussion', cascade='all, delete-orphan')
-```
-
-Key fields:
-- `id`: Primary key, UUID string
-- `session_id`: Foreign key to the consensus_sessions table
-- `title`: Discussion title
-- `created_at`, `updated_at`: Timestamps
-- `status`: Discussion status
-- `creator_id`: Foreign key to the users table
-- `annotation_id`: Optional foreign key to the annotations table
-- Relationships to session and comments
-
-### Consensus Comments Table
-
-The `consensus_comments` table stores comments within discussion threads:
-
-```python
-# From consensus.py
-class ConsensusComment(db.Model):
-    __tablename__ = 'consensus_comments'
-    
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    discussion_id = db.Column(db.String(36), db.ForeignKey('consensus_discussions.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Author of the comment
-    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    author = relationship('User', foreign_keys=[author_id])
-    
-    # Relationships
-    discussion = relationship('ConsensusDiscussion', back_populates='comments')
-```
-
-Key fields:
-- `id`: Primary key, UUID string
-- `discussion_id`: Foreign key to the consensus_discussions table
-- `content`: Comment text
-- `created_at`, `updated_at`: Timestamps
-- `author_id`: Foreign key to the users table
-- Relationship to discussion
-
-### Consensus Votes Table
-
-The `consensus_votes` table tracks votes cast by reviewers:
-
-```python
-# From consensus.py
-class ConsensusVote(db.Model):
-    __tablename__ = 'consensus_votes'
-    
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    session_id = db.Column(db.String(36), db.ForeignKey('consensus_sessions.id'), nullable=False)
-    value = db.Column(db.String(20), nullable=False)  # agree, disagree, abstain
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Voter
-    reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    reviewer = relationship('User', foreign_keys=[reviewer_id])
-    
-    # Optional reference to specific annotation or discussion
-    annotation_id = db.Column(db.String(36), db.ForeignKey('annotations.id'), nullable=True)
-    annotation = relationship('Annotation', foreign_keys=[annotation_id])
-    
-    discussion_id = db.Column(db.String(36), db.ForeignKey('consensus_discussions.id'), nullable=True)
-    discussion = relationship('ConsensusDiscussion', foreign_keys=[discussion_id])
-    
-    # Relationships
-    session = relationship('ConsensusSession', back_populates='votes')
-```
-
-Key fields:
-- `id`: Primary key, UUID string
-- `session_id`: Foreign key to the consensus_sessions table
-- `value`: Vote value (agree, disagree, abstain)
-- `created_at`, `updated_at`: Timestamps
-- `reviewer_id`: Foreign key to the users table
-- `annotation_id`: Optional foreign key to the annotations table
-- `discussion_id`: Optional foreign key to the consensus_discussions table
-- Relationship to session
+- Relationships to annotations and reviewers
 
 ### Association Tables
 
@@ -413,30 +260,18 @@ The database schema includes several key relationships:
    user = db.relationship('User', backref=db.backref('sessions', lazy=True))
    ```
 
-3. **Consensus Session to Discussions**: One-to-many relationship where each session can have multiple discussion threads
-   ```python
-   session_id = db.Column(db.String(36), db.ForeignKey('consensus_sessions.id'), nullable=False)
-   session = relationship('ConsensusSession', back_populates='discussions')
-   ```
-
-4. **Discussion to Comments**: One-to-many relationship where each discussion can have multiple comments
-   ```python
-   discussion_id = db.Column(db.String(36), db.ForeignKey('consensus_discussions.id'), nullable=False)
-   discussion = relationship('ConsensusDiscussion', back_populates='comments')
-   ```
-
-5. **Session to Annotations**: Many-to-many relationship through the consensus_annotation_association table
+3. **Session to Annotations**: Many-to-many relationship through the consensus_annotation_association table
    ```python
    annotations = db.relationship('Annotation', 
                                secondary='consensus_annotation_association',
                                backref=db.backref('consensus_sessions', lazy='dynamic'))
    ```
 
-6. **Session to Reviewers**: Many-to-many relationship through the consensus_reviewer_association table
+4. **Session to Reviewers**: Many-to-many relationship through the consensus_reviewer_association table
    ```python
    reviewers = db.relationship('User',
                               secondary='consensus_reviewer_association',
                               backref=db.backref('consensus_sessions', lazy='dynamic'))
    ```
 
-This comprehensive database schema provides a solid foundation for the DICOM Multi-Reviewer System, enabling persistent storage of user data, annotations, and consensus information while maintaining proper relationships between different entities.
+This database schema provides a solid foundation for the DICOM Multi-Reviewer System, enabling persistent storage of user data, annotations, and consensus information while maintaining proper relationships between different entities.
