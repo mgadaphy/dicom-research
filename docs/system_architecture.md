@@ -144,7 +144,7 @@ Key components:
 - **User Model**: Defines user attributes and methods
 - **LoginManager**: Handles session management
 - **Password Hashing**: Secures user passwords with bcrypt
-- **Role Management**: Currently supports the radiologist role
+- **Role-Based Access Control**: Supports admin and radiologist roles with different access permissions
 
 ```python
 # Example from user.py showing authentication implementation
@@ -163,6 +163,12 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
 ```
+
+The system currently implements two roles:
+- **Administrator**: Can view all annotations and access the consensus dashboard
+- **Radiologist**: Can view and create annotations, but only for their own studies
+
+Self-registration is limited to the radiologist role, while admin accounts must be created directly in the database.
 
 ### DICOM Processing Pipeline
 

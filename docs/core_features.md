@@ -20,7 +20,7 @@ graph TD
 
 ### User Roles
 
-The system currently supports a single user role:
+The system supports two user roles:
 
 ```mermaid
 classDiagram
@@ -33,18 +33,31 @@ classDiagram
     +logout()
   }
   
+  class Administrator {
+    +view_all_annotations()
+    +access_consensus_dashboard()
+  }
+  
   class Radiologist {
     +view_own_annotations()
     +create_annotations()
   }
   
+  User <|-- Administrator
   User <|-- Radiologist
 ```
 
-1. **Radiologist**
+1. **Administrator**
+   - Can view all annotations from all radiologists
+   - Can access the consensus dashboard
+   - Can view discrepancies between annotations
+
+2. **Radiologist**
    - Can view and annotate studies
    - Can view their own annotations
-   - Default role assigned during registration
+   - Cannot access the consensus dashboard
+
+Currently, new users can only register as radiologists through the self-registration system. Admin accounts must be created directly in the database.
 
 ### Login/Logout Process
 
@@ -470,27 +483,39 @@ The system automatically detects three types of discrepancies between annotation
 
 ## 3.5 Future Planned Features
 
-The following features are planned for future implementation in the DICOM Multi-Reviewer System:
+The following features are planned for future implementation in the DICOM Multi-Reviewer System, based on the established development priorities:
 
-### Administrator Role and User Management
+### 1. Persistent Annotation Storage
 
-In future versions, an administrator role will be implemented with the following capabilities:
-- Manage user accounts
-- Invite radiologists to consensus sessions
-- View all annotations from all radiologists
-- Generate reports and statistics
+The first development priority is to implement persistent annotation storage to replace the current in-memory storage:
+- Enhanced database schema for annotations
+- Improved query performance for large datasets
+- Backup and recovery mechanisms
 
-### Series Navigation
+### 2. Enhanced Consensus Dashboard
 
-Future versions will include enhanced navigation between different series within a study:
-- List all series within a study
-- Display series description and modality
-- Allow selection of specific series for viewing
-- Provide thumbnail previews where available
+While the basic Consensus Dashboard is implemented, several key components are planned for future development:
 
-### Consensus Building Interface
+#### Study Comparison View
 
-The Consensus Building Interface will facilitate discussion and resolution of discrepancies:
+```mermaid
+graph TD
+  A[Study Comparison] --> B[Side-by-Side View]
+  A --> C[Overlay View]
+  B --> D[Synchronized Navigation]
+  C --> E[Opacity Controls]
+```
+
+**Planned Workflow Explanation:** The enhanced Study Comparison View will provide both side-by-side and overlay viewing modes with synchronized navigation between images. Users will be able to adjust opacity settings for better visualization of differences.
+
+#### Enhanced Discrepancy Detection Algorithm
+
+The current discrepancy detection will be enhanced with:
+- Improved spatial analysis for more accurate overlap detection
+- Machine learning-assisted detection of subtle differences
+- Configurable sensitivity settings for different use cases
+
+#### Consensus Building Interface
 
 ```mermaid
 graph TD
@@ -502,9 +527,7 @@ graph TD
 
 **Planned Workflow Explanation:** For each identified discrepancy, reviewers will be able to discuss their interpretations, provide additional context, and vote on the correct interpretation. The system will record the consensus decision, which can be used for final reporting and quality improvement.
 
-### Statistics and Reporting
-
-The system will generate statistics and reports on reviewer agreement and discrepancies:
+#### Statistics and Reporting
 
 ```mermaid
 graph TD
@@ -515,3 +538,18 @@ graph TD
 ```
 
 **Planned Workflow Explanation:** The Statistics and Reporting feature will calculate metrics such as inter-reviewer agreement rates, common types of discrepancies, and individual reviewer performance. These reports can be exported for quality assurance and training purposes.
+
+### 3. Administrator User Management
+
+Future versions will enhance the administrator role with additional capabilities:
+- User management interface
+- Ability to invite radiologists to consensus sessions
+- User activity monitoring and reporting
+
+### 4. Series Navigation
+
+Future versions will include enhanced navigation between different series within a study:
+- List all series within a study
+- Display series description and modality
+- Allow selection of specific series for viewing
+- Provide thumbnail previews where available
