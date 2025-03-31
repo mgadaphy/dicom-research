@@ -144,7 +144,7 @@ Key components:
 - **User Model**: Defines user attributes and methods
 - **LoginManager**: Handles session management
 - **Password Hashing**: Secures user passwords with bcrypt
-- **Role-Based Access Control**: Restricts access based on user role
+- **Role Management**: Currently supports the radiologist role
 
 ```python
 # Example from user.py showing authentication implementation
@@ -190,7 +190,7 @@ Key components:
 - **DICOM Parser**: Extracts metadata and pixel data from DICOM files
 - **Image Converter**: Transforms DICOM images to browser-viewable formats
 - **Metadata Extractor**: Retrieves patient and study information
-- **Study/Series/Instance Hierarchy**: Organizes DICOM data in proper hierarchy
+- **Study/Instance Hierarchy**: Organizes DICOM data in proper hierarchy
 
 ```python
 # Example from dicom_parser.py showing DICOM processing
@@ -301,13 +301,9 @@ function saveAnnotation() {
 }
 ```
 
-### Future Planned Features
+### Consensus Dashboard Components
 
-The following components are planned for future implementation:
-
-#### Consensus Dashboard Components
-
-The consensus dashboard will facilitate comparison and resolution of discrepancies:
+The consensus dashboard facilitates comparison of annotations from multiple reviewers:
 
 ```mermaid
 sequenceDiagram
@@ -332,14 +328,43 @@ sequenceDiagram
   Frontend-->>User: Display Comparison View
 ```
 
-**Diagram Explanation:** The planned consensus workflow will begin with the user accessing the dashboard, which requests studies with multiple reviews from the database. When a study is selected, the system will retrieve all annotations for that study, grouped by reviewer. The frontend will detect discrepancies between these annotations and display them in a comparison view for analysis.
+**Diagram Explanation:** The consensus workflow begins with the user accessing the dashboard, which requests studies with multiple reviews from the database. When a study is selected, the system retrieves all annotations for that study, grouped by reviewer. The frontend detects discrepancies between these annotations and displays them in a comparison view for analysis.
 
-Key planned components:
-- **Consensus Session Model**: Will track review sessions between multiple reviewers
-- **Discussion System**: Will enable communication about discrepancies
-- **Voting Mechanism**: Will allow reviewers to agree or disagree with findings
-- **Discrepancy Detection**: Will identify differences between annotations
-- **Visualization Tools**: Will display multiple annotations for comparison
+Key components:
+- **Discrepancy Detection**: Identifies differences between annotations
+- **Visualization Tools**: Displays multiple annotations for comparison
+
+### Future Planned Features
+
+The following components are planned for future implementation:
+
+#### Administrator Role and User Management
+
+Future versions will include an administrator role with enhanced capabilities:
+- User management interface
+- Radiologist invitation system
+- Enhanced reporting and analytics
+
+#### Series Navigation
+
+Future versions will include enhanced navigation between different series within a study:
+- Series list component
+- Series metadata display
+- Series selection interface
+
+#### Consensus Building Interface
+
+The consensus building interface will facilitate discussion and resolution of discrepancies:
+- Discussion thread system
+- Voting mechanism
+- Consensus recording
+
+#### Statistics and Reporting
+
+The statistics and reporting module will provide insights into reviewer performance:
+- Agreement rate calculations
+- Discrepancy type analysis
+- Report generation
 
 ### Data Flow Between Components
 
@@ -386,6 +411,6 @@ sequenceDiagram
   Frontend-->>User: Display Comparison View
 ```
 
-**Diagram Explanation:** This comprehensive flow diagram illustrates the interactions between all system components, from user authentication to DICOM viewing and annotation creation. The final sections showing consensus dashboard interactions represent planned future functionality.
+**Diagram Explanation:** This comprehensive flow diagram illustrates the interactions between all system components, from user authentication to DICOM viewing, annotation creation, and consensus review.
 
 This architecture provides a robust foundation for the system while maintaining flexibility for future enhancements and extensions.

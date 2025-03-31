@@ -2,7 +2,7 @@
 
 ## 3.1 User Authentication and Management
 
-The DICOM Multi-Reviewer System implements a comprehensive user authentication and management system to ensure secure access and appropriate permissions for different user roles.
+The DICOM Multi-Reviewer System implements a basic user authentication system to ensure secure access to the application.
 
 ```mermaid
 graph TD
@@ -16,11 +16,11 @@ graph TD
   G --> C
 ```
 
-**Workflow Explanation:** The authentication system allows users to log in with their credentials. Upon successful authentication, users are directed to the DICOM study list. New users can register through the registration form, which validates their information before creating their account.
+**Workflow Explanation:** The authentication system allows users to log in with their credentials. Upon successful authentication, users are directed to the DICOM study list. New users can register through the registration form, which validates their information before creating their account with the radiologist role.
 
 ### User Roles
 
-The system supports two primary user roles:
+The system currently supports a single user role:
 
 ```mermaid
 classDiagram
@@ -33,33 +33,18 @@ classDiagram
     +logout()
   }
   
-  class Administrator {
-    +manage_users()
-    +access_all_annotations()
-    +view_consensus_dashboard()
-  }
-  
   class Radiologist {
     +view_own_annotations()
     +create_annotations()
   }
   
-  User <|-- Administrator
   User <|-- Radiologist
 ```
 
-1. **Administrator**
-   - Full access to all system features
-   - Can manage user accounts
-   - Can view all annotations from all radiologists
-   - Can initiate and manage consensus sessions
-   - Can generate reports and statistics
-
-2. **Radiologist**
-   - Can view and annotate assigned studies
-   - Can only view their own annotations by default
-   - Can participate in consensus sessions when invited
-   - Can view discrepancies between their annotations and others' in consensus mode
+1. **Radiologist**
+   - Can view and annotate studies
+   - Can view their own annotations
+   - Default role assigned during registration
 
 ### Login/Logout Process
 
@@ -99,64 +84,14 @@ def logout():
 ```
 
 The login process:
-1. User enters credentials (username and password)
-2. System verifies credentials against the database
-3. If valid, a session is created and user is redirected to the main page
-4. If invalid, an error message is displayed
+1. User enters username and password
+2. System validates credentials against the database
+3. If valid, user is logged in and redirected to the DICOM list
+4. If invalid, error message is displayed
 
-The logout process:
-1. User clicks logout
-2. Session is terminated
-3. User is redirected to the login page
+### User Registration
 
-### Default Accounts
-
-Upon first startup, the system creates two default accounts:
-
-```python
-# From main.py - initialize_database function
-if User.query.count() == 0:
-    logger.info("Creating default users")
-    admin = User(
-        username='admin',
-        email='admin@example.com',
-        full_name='System Administrator',
-        role='admin'
-    )
-    admin.set_password('admin')
-    db.session.add(admin)
-    
-    radiologist = User(
-        username='radiologist1',
-        email='radiologist1@example.com',
-        full_name='Test Radiologist',
-        role='radiologist'
-    )
-    radiologist.set_password('password')
-    db.session.add(radiologist)
-    
-    db.session.commit()
-    logger.info("Default users created")
-```
-
-1. **Admin Account**
-   - Username: admin
-   - Password: admin
-   - Role: Administrator
-
-2. **Radiologist Account**
-   - Username: radiologist1
-   - Password: password
-   - Role: Radiologist
-
-### Adding New Users
-
-New users can be added in two ways:
-
-1. **Self-Registration** (if enabled):
-   - User navigates to the registration page
-   - Fills out the registration form with username, email, password, and full name
-   - System creates a new account with the default "radiologist" role
+New users can register through the registration form:
 
 ```python
 # From main.py
@@ -205,29 +140,21 @@ def register():
     return render_template('register.html')
 ```
 
-2. **Administrator Creation**:
-   - Admin logs in and accesses the user management interface
-   - Fills out the new user form
-   - Can specify the role (radiologist or admin)
-   - System creates the new account
-
 ## 3.2 DICOM Viewing
 
-The DICOM Viewing component provides a comprehensive interface for viewing and navigating medical images in the DICOM format.
+The DICOM Viewing component provides a basic interface for viewing medical images in the DICOM format.
 
 ```mermaid
 graph TD
   A[DICOM Viewer] --> B[Study List]
-  B --> C[Series Selection]
-  C --> D[Image Viewer]
+  B --> C[Image Viewer]
   
-  D --> E[Navigation Controls]
-  D --> F[Window/Level Controls]
-  D --> G[Zoom/Pan Controls]
-  D --> H[Annotation Interface]
+  C --> D[Navigation Controls]
+  C --> E[Zoom/Pan Controls]
+  C --> F[Annotation Interface]
 ```
 
-**Workflow Explanation:** The DICOM viewing workflow begins with the study list, where users select a study to view. Within each study, users can select specific series, then navigate through images using various controls for adjusting the view (zoom, pan, window/level) and access the annotation tools.
+**Workflow Explanation:** The DICOM viewing workflow begins with the study list, where users select a study to view. The system displays the images with basic navigation and zoom/pan controls, and provides access to the annotation tools.
 
 ### Study Selection Interface
 
@@ -253,53 +180,11 @@ def get_dicom_studies():
 
 Key features:
 - Lists all available studies with patient ID, name, and study date
-- Allows filtering and sorting of studies
-- Displays study description and modality
 - Provides direct access to the viewer for each study
-
-### Series Navigation
-
-Within each study, the system provides navigation between different series:
-
-```javascript
-// From simple-viewer.js
-function loadStudy(studyUid) {
-    // Load study metadata and series list
-    fetch(`/api/dicom/${studyUid}/metadata`)
-        .then(response => response.json())
-        .then(metadata => {
-            // Display series list
-            const seriesList = document.getElementById('series-list');
-            seriesList.innerHTML = '';
-            
-            metadata.series.forEach(series => {
-                const seriesItem = document.createElement('div');
-                seriesItem.className = 'series-item';
-                seriesItem.textContent = `${series.description} (${series.modality})`;
-                seriesItem.onclick = () => loadSeries(studyUid, series.seriesUid);
-                seriesList.appendChild(seriesItem);
-            });
-            
-            // Load first series by default
-            if (metadata.series.length > 0) {
-                loadSeries(studyUid, metadata.series[0].seriesUid);
-            }
-        })
-        .catch(error => {
-            console.error("Error loading study:", error);
-        });
-}
-```
-
-Key features:
-- Lists all series within a study
-- Displays series description and modality
-- Allows selection of specific series for viewing
-- Provides thumbnail previews where available
 
 ### Image Viewing Controls
 
-The image viewer provides standard controls for navigating and manipulating DICOM images:
+The image viewer provides basic controls for navigating and manipulating DICOM images:
 
 ```javascript
 // From annotation-viewer.js
@@ -330,9 +215,7 @@ function applyZoom() {
 Key features:
 - Zoom in/out and reset view
 - Pan image by dragging
-- Navigate between images in a series
-- Window/level adjustment for optimal contrast
-- Measurement tools for distance and area
+- Navigate between images in a study
 
 ## 3.3 Annotation System
 
@@ -548,13 +431,9 @@ Key features:
 - Timestamps track creation and modification times
 - Consensus-related fields track the status of annotations in consensus review
 
-## 3.4 Future Planned Features
+## 3.4 Consensus Dashboard
 
-The following features are planned for future implementation in the DICOM Multi-Reviewer System:
-
-### Consensus Dashboard
-
-The Consensus Dashboard will enable comparison of annotations from multiple reviewers and facilitate reaching consensus on discrepant findings.
+The Consensus Dashboard is an implemented feature that enables comparison of annotations from multiple reviewers.
 
 ```mermaid
 graph TD
@@ -568,15 +447,46 @@ graph TD
   F -->|Off| H[Show All Annotations]
 ```
 
-**Planned Workflow Explanation:** The planned Consensus Dashboard will allow administrators to select studies with multiple reviews, choose which reviewers' annotations to compare, and view annotations in either overlay or side-by-side mode. The system will automatically detect discrepancies between annotations and provide tools to highlight and resolve these differences.
+**Workflow Explanation:** The Consensus Dashboard allows users to select studies with multiple reviews, choose which reviewers' annotations to compare, and view annotations in either overlay or side-by-side mode. The system automatically detects discrepancies between annotations and provides tools to highlight these differences.
 
 ### Discrepancy Detection Mechanism
 
-The system will automatically detect three types of discrepancies between annotations:
+The system automatically detects three types of discrepancies between annotations:
 
-1. **Spatial Discrepancies**: Annotations in similar locations with insufficient overlap
-2. **Classification Discrepancies**: Annotations in the same location but with different findings
-3. **Presence Discrepancies**: Findings marked by one reviewer but not others
+1. **Spatial Discrepancies**
+   - Annotations in similar locations with insufficient overlap
+   - Calculated using geometric algorithms for different shape types
+   - Configurable threshold for overlap percentage
+
+2. **Classification Discrepancies**
+   - Annotations in the same location but with different findings
+   - Detected when overlapping regions have different finding labels
+   - Highlights differences in diagnosis for the same feature
+
+3. **Presence Discrepancies**
+   - Findings marked by one reviewer but not others
+   - Detected when a region has no corresponding annotations from other reviewers
+   - Highlights potential missed findings
+
+## 3.5 Future Planned Features
+
+The following features are planned for future implementation in the DICOM Multi-Reviewer System:
+
+### Administrator Role and User Management
+
+In future versions, an administrator role will be implemented with the following capabilities:
+- Manage user accounts
+- Invite radiologists to consensus sessions
+- View all annotations from all radiologists
+- Generate reports and statistics
+
+### Series Navigation
+
+Future versions will include enhanced navigation between different series within a study:
+- List all series within a study
+- Display series description and modality
+- Allow selection of specific series for viewing
+- Provide thumbnail previews where available
 
 ### Consensus Building Interface
 
