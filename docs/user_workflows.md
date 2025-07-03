@@ -177,51 +177,71 @@ sequenceDiagram
 
 ## 6.5 Consensus Workflows
 
-### Accessing the Consensus Comparison Viewer
+### Implementation Status Overview
+
+> **Note:** The consensus workflows are currently **partially implemented**. This section documents both the implemented features and those planned for future development.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| ✅ Consensus Dashboard UI | Implemented | Basic UI showing studies with multiple reviews |
+| ✅ Study Selection | Implemented | Ability to select studies for comparison |
+| ✅ Side-by-side Annotation View | Implemented | Basic viewing of annotations from different reviewers |
+| ⚠️ Basic Discrepancy Detection | Partial | Limited to finding differences without advanced spatial analysis |
+| ❌ Discussion Thread | Planned | Not yet implemented |
+| ❌ Voting System | Planned | Not yet implemented |
+| ❌ Consensus Resolution | Planned | Not yet implemented |
+| ❌ Statistics and Reporting | Planned | Not yet implemented |
+
+### Accessing the Consensus Dashboard (Implemented)
 
 ```mermaid
 sequenceDiagram
-    participant R as Radiologist
+    participant A as Administrator
     participant S as System
-    participant V as Consensus Viewer
     participant DB as Database
     
-    R->>S: Navigate to Study List
-    S->>R: Display Available Studies
-    R->>S: Select Study with Multiple Reviews
-    S->>DB: Query Study Annotations
-    DB->>S: Return Annotation Data
-    S->>R: Display Consensus Option
-    R->>S: Click "View Consensus"
-    S->>V: Load Consensus Viewer
-    V->>DB: Query Annotations
-    DB->>V: Return All Reviewers' Annotations
-    V->>R: Display Side-by-Side Comparison
-    R->>V: Review Annotation Differences
+    A->>S: Navigate to Consensus Dashboard
+    S->>DB: Query Studies with Multiple Reviews
+    DB->>S: Return Multi-Review Studies
+    S->>A: Display Study List
+    A->>S: Select Study for Comparison
+    S->>DB: Retrieve All Annotations for Study
+    DB->>S: Return Annotations by Reviewer
+    S->>S: Process Annotations
+    S->>S: Basic Discrepancy Detection
+    S->>A: Display Side-by-Side View
 ```
 
-**Explanation:** This diagram shows how users access the consensus comparison viewer. From the study list, they select a study that has multiple reviews, and the system checks for annotations from different reviewers. When the user clicks to view the consensus, the system loads all annotations for the study and displays them side-by-side, allowing the user to review differences between annotations.
+**Explanation:** This diagram shows the currently implemented workflow for accessing the consensus dashboard. Administrators can view studies with multiple reviews and select one for comparison. The system retrieves annotations and displays them side-by-side with basic discrepancy detection.
 
-### Reviewing Discrepancies
+### Resolving Discrepancies (Planned - Not Yet Implemented)
 
 ```mermaid
 sequenceDiagram
-    participant R as Radiologist
-    participant V as Consensus Viewer
+    participant A as Administrator
     participant S as System
+    participant R as Radiologists
     participant DB as Database
     
-    R->>V: View Side-by-Side Annotations
-    V->>S: Calculate Discrepancies
-    S->>V: Return Discrepancy List
-    V->>R: Display Discrepancy Summary
-    R->>V: Select Discrepancy
-    V->>R: Focus View on Selected Discrepancy
-    R->>V: Navigate Between Discrepancies
-    R->>V: Compare Annotation Details
+    A->>S: Identify Discrepancy
+    A->>S: Initiate Discussion
+    S->>R: Send Notification
+    R->>S: View Discrepancy
+    R->>S: Add Comments
+    A->>S: Review Comments
+    A->>S: Propose Resolution
+    R->>S: Vote on Resolution
+    S->>S: Calculate Consensus
+    S->>DB: Store Consensus Result
+    S->>A: Display Consensus Result
+    
+    style A stroke:#666,stroke-width:2px
+    style S stroke:#666,stroke-width:2px
+    style R stroke:#666,stroke-width:2px
+    style DB stroke:#666,stroke-width:2px
 ```
 
-**Explanation:** This workflow illustrates how users review discrepancies in the consensus viewer. The system calculates differences between annotations and presents a summary of discrepancies. Users can select specific discrepancies to focus on, navigate between them, and compare the details of different annotations to understand the differences in interpretation.
+**Explanation:** This workflow illustrates the planned (but not yet implemented) process for resolving discrepancies. The diagram is shown in gray to indicate that this functionality is not currently available in the system.
 
 ## 6.6 Future Planned Workflows
 

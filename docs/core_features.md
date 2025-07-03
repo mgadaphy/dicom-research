@@ -446,40 +446,47 @@ Key features:
 
 ## 3.4 Consensus Dashboard
 
-The Consensus Dashboard is an implemented feature that enables comparison of annotations from multiple reviewers.
+The Consensus Dashboard provides a way to compare annotations from multiple reviewers for the same study. It is currently in a **partial implementation state** with basic functionality available.
 
 ```mermaid
 graph TD
-  A[Consensus Dashboard] --> B[Study Selection]
-  B --> C[Reviewer Selection]
-  C --> D[View Mode Selection]
-  
-  D -->|Overlay View| E[Display All Annotations]
-  E --> F[Toggle Discrepancies]
-  F -->|On| G[Highlight Discrepancies]
-  F -->|Off| H[Show All Annotations]
+  A[Administrator] --> B[Access Consensus Dashboard]
+  B --> C[View Studies with Multiple Reviews]
+  C --> D[Select Study for Comparison]
+  D --> E[View Annotations Side by Side]
+  E --> F[Basic Discrepancy Identification]
 ```
 
-**Workflow Explanation:** The Consensus Dashboard allows users to select studies with multiple reviews, choose which reviewers' annotations to compare, and view annotations in either overlay or side-by-side mode. The system automatically detects discrepancies between annotations and provides tools to highlight these differences.
+**Current Implementation Status:**
+- ✅ Basic dashboard UI showing studies with multiple reviews
+- ✅ Side-by-side viewing of annotations from different reviewers
+- ⚠️ Basic discrepancy identification (limited to finding differences)
+- ❌ Advanced spatial analysis for overlapping annotations
+- ❌ Statistical comparison of reviewer agreement
+- ❌ Discussion thread functionality
+- ❌ Consensus building interface
+
+**Workflow Explanation:** Administrators can access the Consensus Dashboard to view studies that have been annotated by multiple reviewers. They can select a study to compare annotations side-by-side. The system provides basic identification of differences in findings, but advanced discrepancy detection algorithms (spatial analysis, classification comparison) are not yet fully implemented.
 
 ### Discrepancy Detection Mechanism
 
-The system automatically detects three types of discrepancies between annotations:
+The current implementation includes a basic framework for discrepancy detection with the following limitations:
 
-1. **Spatial Discrepancies**
-   - Annotations in similar locations with insufficient overlap
-   - Calculated using geometric algorithms for different shape types
-   - Configurable threshold for overlap percentage
+- **Finding Discrepancies**: The system can detect when different reviewers have assigned different findings to annotations.
+- **Spatial Discrepancies**: The system has placeholder code for detecting spatial overlaps between annotations, but the required geometric libraries (shapely) are not currently integrated.
+- **Classification Discrepancies**: The system can identify when reviewers have classified the same region differently, but only through basic string comparison.
 
-2. **Classification Discrepancies**
-   - Annotations in the same location but with different findings
-   - Detected when overlapping regions have different finding labels
-   - Highlights differences in diagnosis for the same feature
+```mermaid
+graph TD
+  A[Compare Annotations] --> B[Identify Different Findings]
+  A --> C[Check Spatial Overlap]
+  A --> D[Compare Classifications]
+  B --> E[Report Discrepancies]
+  C --> E
+  D --> E
+```
 
-3. **Presence Discrepancies**
-   - Findings marked by one reviewer but not others
-   - Detected when a region has no corresponding annotations from other reviewers
-   - Highlights potential missed findings
+**Note:** The consensus engine is currently a placeholder implementation. Advanced features such as statistical analysis of agreement rates, spatial overlap calculations, and automated consensus suggestions are planned but not yet implemented.
 
 ## 3.5 Future Planned Features
 

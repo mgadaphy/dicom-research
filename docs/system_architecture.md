@@ -329,16 +329,60 @@ sequenceDiagram
   Frontend->>Backend: Request Annotations by Reviewer
   Backend->>Database: Query Annotations
   Database-->>Backend: Annotation Data
-  Backend-->>Frontend: Annotations by Reviewer
-  Frontend->>Frontend: Detect Discrepancies
-  Frontend-->>User: Display Comparison View
 ```
 
-**Diagram Explanation:** The consensus workflow begins with the user accessing the dashboard, which requests studies with multiple reviews from the database. When a study is selected, the system retrieves all annotations for that study, grouped by reviewer. The frontend detects discrepancies between these annotations and displays them in a comparison view for analysis.
+```mermaid
+graph TD
+  A[Consensus Dashboard] --> B[Study Selector]
+  A --> C[Reviewer Selector]
+  A --> D[Comparison Viewer]
+  A --> E[Discrepancy Detector]
+  
+  B --> F[Multi-Review Filter]
+  C --> D
+  D --> E
+  E --> G[Discrepancy Report]
+  
+  classDef implemented fill:#d4edda,stroke:#28a745;
+  classDef partial fill:#fff3cd,stroke:#ffc107;
+  classDef planned fill:#f8d7da,stroke:#dc3545;
+  
+  class B,C,D implemented;
+  class E,F partial;
+  class G planned;
+```
 
-Key components:
-- **Discrepancy Detection**: Identifies differences between annotations
-- **Visualization Tools**: Displays multiple annotations for comparison
+Key components and their implementation status:
+- ✅ **Study Selector**: Filters and displays studies with multiple reviews
+- ✅ **Reviewer Selector**: Allows selection of reviewers for comparison
+- ✅ **Comparison Viewer**: Displays annotations side-by-side (overlay view not implemented)
+- ⚠️ **Discrepancy Detector**: Basic implementation that identifies different findings but lacks advanced spatial analysis
+- ⚠️ **Multi-Review Filter**: Basic filtering of studies with multiple reviews
+- ❌ **Discrepancy Report**: Planned but not yet implemented
+
+##### Consensus Engine Implementation Status
+
+The consensus engine is currently in a placeholder state with several limitations:
+
+```python
+# Example from consensus_engine.py showing placeholder implementation
+class ConsensusEngine:
+    @staticmethod
+    def detect_discrepancies(annotations: List[Annotation]) -> Dict[str, Any]:
+        # Basic implementation without advanced spatial analysis
+        # Required libraries (shapely, scipy) are commented out in imports
+        if len(annotations) < 2:
+            return {"consensus_possible": True, "discrepancies": []}
+        
+        # Basic finding comparison without geometric analysis
+        # ...
+```
+
+The current implementation:
+- Can detect basic differences in findings between reviewers
+- Lacks the geometric libraries needed for spatial overlap analysis
+- Does not include statistical methods for agreement calculation
+- Has database models prepared but not fully utilized for comparison
 
 ### Future Planned Features
 

@@ -2,7 +2,9 @@
 
 ## 4.1 Database Structure
 
-The DICOM Multi-Reviewer System uses SQLite as its database engine, providing a lightweight yet powerful storage solution. This section documents the complete database schema, including all tables, relationships, and key fields.
+The DICOM Multi-Reviewer System uses SQLite as its database engine, providing a lightweight yet powerful storage solution. This section documents the database schema, including tables, relationships, and key fields.
+
+> **Implementation Note:** While the database schema is defined as described below, the current system has a **partial implementation** of persistent storage. Some operations may still rely on in-memory data structures rather than fully utilizing the database capabilities.
 
 ### Database Tables Overview
 
@@ -106,7 +108,7 @@ Key fields:
 
 ### Annotations Table
 
-The `annotations` table stores all user annotations and their metadata:
+The `annotations` table stores all annotation data created by reviewers:
 
 ```python
 # From annotation.py
@@ -117,40 +119,43 @@ class Annotation(db.Model):
     study_uid = db.Column(db.String(64), nullable=False, index=True)
     series_uid = db.Column(db.String(64), nullable=True)
     instance_uid = db.Column(db.String(64), nullable=True)
-    
-    # Foreign key relationship with user
     reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    reviewer = db.relationship('User', backref=db.backref('annotations', lazy=True))
-    
-    # Annotation metadata
     finding = db.Column(db.String(255), nullable=True)
     confidence_level = db.Column(db.Float, default=0.0)
     notes = db.Column(db.Text, nullable=True)
-    
-    # Consensus-related fields
-    consensus_status = db.Column(db.String(20), default='pending')  # pending, agreed, disputed
-    consensus_score = db.Column(db.Float, default=0.0)  # Agreement score (0-1)
-    is_consensus_result = db.Column(db.Boolean, default=False)  # Whether this annotation is a consensus result
-    
-    # Annotation data (stored as JSON)
+    consensus_status = db.Column(db.String(20), default='pending')
+    consensus_score = db.Column(db.Float, default=0.0)
+    is_consensus_result = db.Column(db.Boolean, default=False)
     _region_data = db.Column('region_data', db.Text, nullable=True)
-    
-    # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    
+    reviewer = db.relationship('User', backref=db.backref('annotations', lazy=True))
 ```
 
 Key fields:
-- `id`: Primary key, UUID string
+- `id`: UUID primary key
 - `study_uid`, `series_uid`, `instance_uid`: DICOM identifiers
 - `reviewer_id`: Foreign key to the users table
-- `finding`: Text description of the radiological finding
-- `confidence_level`: Numeric confidence rating (0-10)
+- `finding`: Classification of the annotation
+- `confidence_level`: Reviewer's confidence (0-1)
 - `notes`: Additional notes about the finding
 - `consensus_status`: Status in consensus review process
 - `consensus_score`: Agreement score in consensus review
 - `is_consensus_result`: Flag for consensus result annotations
 - `region_data`: JSON-encoded shape data
+
+#### Implementation Status
+
+> **Current Status:** ⚠️ **Partially Implemented**
+> 
+> While the database model is fully defined, the current implementation has the following limitations:
+> - Some annotation operations may still use in-memory storage rather than fully persisting to the database
+> - The consensus-related fields (`consensus_status`, `consensus_score`, `is_consensus_result`) are defined but not fully utilized by the consensus engine
+> - The `region_data` field stores geometric information, but the system lacks the geometric libraries (shapely) needed for advanced spatial analysis
+> 
+> **Development Priority:** Completing the persistent annotation storage is the first priority in the development roadmap.
+
 - `created_at`, `updated_at`: Timestamps
 
 ### Table Relationships
