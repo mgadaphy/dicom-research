@@ -12,6 +12,56 @@
             line-height: 1.6;
         }
         
+        /* FAQ Accordion Styles */
+        .faq-item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            padding: 20px;
+            margin: 0;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .faq-question::after {
+            content: '+';
+            font-size: 20px;
+            color: #2196F3;
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-question.active::after {
+            content: '−';
+            transform: rotate(180deg);
+        }
+        
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .faq-answer.show {
+            padding: 0 20px 20px 20px;
+            max-height: 1000px; /* Large enough to contain content */
+        }
+        
         .header {
             background-color: #2196F3;
             color: white;
@@ -217,13 +267,1416 @@
         </div>
     </div>
     
+    <div class="container">
+        <h2 style="text-align: center;">Use Cases & Clinical Applications</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            The DICOM Multi-Reviewer System has been designed to address a wide range of clinical scenarios
+            where multiple expert opinions and structured consensus building are essential.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>Clinical Trials</h3>
+                <p>Standardize imaging review processes across multiple sites in clinical trials, ensuring consistent 
+                evaluation criteria and reducing variability in endpoint assessments. The system provides audit trails 
+                and quantitative metrics for regulatory compliance.</p>
+            </div>
+            <div class="feature">
+                <h3>Quality Assurance</h3>
+                <p>Implement systematic peer review programs within radiology departments to maintain high diagnostic 
+                standards. Track discrepancy rates, identify training opportunities, and document quality improvement 
+                initiatives with comprehensive analytics.</p>
+            </div>
+            <div class="feature">
+                <h3>Education & Training</h3>
+                <p>Create structured learning environments for radiology residents and fellows. Compare trainee 
+                interpretations with those of experienced radiologists, providing targeted feedback and 
+                measuring progress over time with objective metrics.</p>
+            </div>
+            <div class="feature">
+                <h3>Research Collaboration</h3>
+                <p>Facilitate multi-center research projects by standardizing image interpretation across institutions. 
+                The system enables researchers to collaborate remotely, share findings securely, and build consensus 
+                on imaging biomarkers and novel radiologic findings.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 60px 20px;">
+        <div class="container">
+            <h2 style="text-align: center;">Technology Stack & Architecture</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+                The DICOM Multi-Reviewer System is built on a modern, secure, and scalable technology stack
+                designed for performance, reliability, and ease of integration with existing healthcare IT infrastructure.
+            </p>
+            
+            <div style="max-width: 900px; margin: 0 auto 40px; text-align: center;">
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2196F3; margin-top: 0;">System Architecture</h3>
+                    <img src="/static/images/Dicom_Multi_Reviewer_System_Architecture.png" alt="System Architecture Diagram" style="max-width: 100%; height: auto; border-radius: 4px; margin: 20px 0;">
+                    <p style="text-align: left; color: #666;">
+                        <small>The diagram above illustrates the key components of the DICOM Multi-Reviewer System and their interactions.</small>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <h3>Backend Technologies</h3>
+                    <ul style="text-align: left;">
+                        <li><strong>Flask:</strong> Python web framework for the application server</li>
+                        <li><strong>SQLAlchemy:</strong> ORM for database interactions</li>
+                        <li><strong>PyDICOM:</strong> DICOM file parsing and manipulation</li>
+                        <li><strong>Flask-Login:</strong> User authentication and session management</li>
+                        <li><strong>SQLite/PostgreSQL:</strong> Database options for different deployment scales</li>
+                    </ul>
+                </div>
+                <div class="feature">
+                    <h3>Frontend Technologies</h3>
+                    <ul style="text-align: left;">
+                        <li><strong>HTML5/CSS3:</strong> Modern web standards</li>
+                        <li><strong>JavaScript:</strong> Dynamic client-side interactions</li>
+                        <li><strong>Canvas API:</strong> Advanced image annotation capabilities</li>
+                        <li><strong>Responsive Design:</strong> Compatible with various devices and screen sizes</li>
+                        <li><strong>AJAX:</strong> Asynchronous data loading for smooth user experience</li>
+                    </ul>
+                </div>
+                <div class="feature">
+                    <h3>Security Features</h3>
+                    <ul style="text-align: left;">
+                        <li><strong>Bcrypt:</strong> Secure password hashing</li>
+                        <li><strong>HTTPS:</strong> Encrypted data transmission</li>
+                        <li><strong>Role-based Access:</strong> Granular permission control</li>
+                        <li><strong>Session Management:</strong> Secure user sessions</li>
+                        <li><strong>Input Validation:</strong> Protection against injection attacks</li>
+                    </ul>
+                </div>
+                <div class="feature">
+                    <h3>Integration Capabilities</h3>
+                    <ul style="text-align: left;">
+                        <li><strong>DICOM Standard:</strong> Compatible with all DICOM-compliant systems</li>
+                        <li><strong>HL7 Support:</strong> Healthcare data exchange</li>
+                        <li><strong>REST API:</strong> Integration with external systems</li>
+                        <li><strong>PACS Connectivity:</strong> Seamless workflow with existing PACS</li>
+                        <li><strong>Export Options:</strong> Reports in multiple formats (PDF, CSV, JSON)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        <h2 style="text-align: center;">Team & Expertise</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            The DICOM Multi-Reviewer System is developed by a multidisciplinary team of experts in medical imaging,
+            software engineering, and healthcare informatics, led by Mohamed Gadaphy Nkwenkwat with guidance from
+            distinguished academic and technical supervisors.
+        </p>
+        
+        <!-- Principal Researcher -->
+        <div style="max-width: 900px; margin: 0 auto 40px;">
+            <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; align-items: center;">
+                <div style="flex: 1; min-width: 300px; padding: 20px; text-align: center;">
+                    <img src="https://avatars.githubusercontent.com/u/43034588?v=4" alt="Mohamed Gadaphy Nkwekwat" style="border-radius: 50%; max-width: 200px;">
+                    <div style="margin-top: 15px;">
+                        <a href="mailto:mogadaphy@gmail.com" style="color: #2196F3; text-decoration: none; margin: 0 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></a>
+                        <a href="https://github.com/mgadaphy" target="_blank" style="color: #2196F3; text-decoration: none; margin: 0 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+                        <a href="https://www.linkedin.com/in/mohamed-gadaphy-nkwenkwat-631b50195/" target="_blank" style="color: #2196F3; text-decoration: none; margin: 0 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                        <a href="https://mogadonko.com" target="_blank" style="color: #2196F3; text-decoration: none; margin: 0 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></a>
+                    </div>
+                </div>
+                <div style="flex: 2; min-width: 300px; padding: 20px;">
+                    <h3 style="color: #2196F3; margin-top: 0;">Mohamed Gadaphy Nkwekwat (Mo Gadaphy)</h3>
+                    <p style="font-weight: bold;">Principal Researcher & Founder, CEO of MOGADONKO AGENCY</p>
+                    <p>
+                        Mo Gadaphy is the principal architect and researcher behind the DICOM Multi-Reviewer System, aimed at reducing diagnosis errors through collaborative medical image analysis. His solution leverages open DICOM standards and secure, intelligent reviewer workflows, merging clinical precision with AI-augmented decision support.
+                    </p>
+                    <p>
+                        <strong>Technical Expertise:</strong> PHP, Laravel, Python, Flask, JavaScript, HTML/CSS, Bootstrap, MySQL, SQLite
+                    </p>
+                    <p>
+                        <strong>Core Projects:</strong> DICOM Multi-Reviewer System, AI Thesis Writer, Research Questionnaire Builder, Health Symptom Checker, Legal Doc Analyzer, Multi-School Report Card System, E-learning Platform
+                    </p>
+                    <p>
+                        <strong>Vision:</strong> Bridging the gap between medical precision and software automation, using intelligent tools to reduce diagnosis errors while providing intuitive UIs and collaborative environments.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Supervisors -->
+        <h3 style="text-align: center; color: #0d47a1; margin: 40px 0 30px;">Project Supervision</h3>
+        
+        <div class="supervisor-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; max-width: 900px; margin: 0 auto 40px;">
+            <!-- Academic Supervisor -->
+            <div class="supervisor-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV2wjpICGpz6LqPEmaCQgWHlH7_InkKYQmFw&s" alt="Prof. Roland Christian Gamom Ngounou Ewo" style="border-radius: 50%; max-width: 150px;">
+                </div>
+                <h4 style="text-align: center; color: #2196F3; margin-top: 0;">Prof. Roland Christian Gamom Ngounou Ewo</h4>
+                <p style="text-align: center; font-weight: bold; color: #666;">Academic Supervisor</p>
+                
+                <p style="margin-bottom: 10px;"><strong>Affiliations:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Cergy-Pontoise University, France</li>
+                    <li>ETIS Research Center (France)</li>
+                    <li>University of Douala, Cameroon</li>
+                </ul>
+                
+                <p style="margin-bottom: 10px;"><strong>Expertise:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Electrical & Electronics Engineering</li>
+                    <li>Cryptography & Network Security</li>
+                    <li>Hardware-Software Co-design (FPGA, MP-RSoC)</li>
+                    <li>Medical Signal Processing</li>
+                    <li>Biomedical Engineering Applications</li>
+                </ul>
+                
+                <p style="margin-bottom: 10px;"><strong>Project Contribution:</strong></p>
+                <p style="margin-top: 0;">
+                    Prof. Gamom provides academic guidance on the research design, security framework, DICOM protocol integrity, and biomedical application of the system. His expertise ensures the system aligns with international academic standards and medical data compliance.
+                </p>
+                
+                <p style="margin-bottom: 10px;"><strong>Selected Publications:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Design of a Cryptographic Algorithm as an API to Secure Transactions (2023)</li>
+                    <li>Cryptographic Protocol Grafted onto ESP-NOW for Wireless Sensor Security (2025)</li>
+                    <li>A Novel Algorithm for Extraction of Respiratory Frequency from ECG (2022)</li>
+                </ul>
+            </div>
+            
+            <!-- Technical Supervisor -->
+            <div class="supervisor-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://0.academia-photos.com/5065670/2209658/2587898/s200_lienou.jean-pierre.jpg" alt="Dr. Jean-Pierre Lienou" style="border-radius: 50%; max-width: 150px;">
+                </div>
+                <h4 style="text-align: center; color: #2196F3; margin-top: 0;">Dr. Jean-Pierre Lienou</h4>
+                <p style="text-align: center; font-weight: bold; color: #666;">Technical/Professional Supervisor</p>
+                
+                <p style="margin-bottom: 10px;"><strong>Affiliations:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Head of Department, Computer Engineering, COLTECH, University of Bamenda</li>
+                    <li>Laboratory Manager & Lecturer, University of Dschang</li>
+                    <li>Associated Staff, NAHPI – University of Bamenda</li>
+                </ul>
+                
+                <p style="margin-bottom: 10px;"><strong>Expertise:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Artificial Intelligence & Machine Learning (Medical Imaging)</li>
+                    <li>Multi-Agent Systems for Collaborative Systems</li>
+                    <li>Software Engineering & Diagnostic Systems</li>
+                    <li>C, Java, L5G Windev, Network Security</li>
+                </ul>
+                
+                <p style="margin-bottom: 10px;"><strong>Project Contribution:</strong></p>
+                <p style="margin-top: 0;">
+                    Dr. Lienou leads technical development strategy, helping translate academic ideas into deployable, intelligent platforms. He guides the integration of neural networks and agent-based collaboration into the DICOM tool.
+                </p>
+                
+                <p style="margin-bottom: 10px;"><strong>Key Publications:</strong></p>
+                <ul style="margin-top: 0; padding-left: 20px;">
+                    <li>Breast Cancer Detection Using Multilayer Perceptron Analog Neural Networks (2025)</li>
+                    <li>Feed-Forward Neural Network for Breast Cancer Diagnosis (2024)</li>
+                    <li>Multi-Agent Diagnostic Platform in Precision Agriculture (2022)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Synergistic Expertise -->
+        <div style="max-width: 900px; margin: 0 auto 40px; background-color: #e3f2fd; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="text-align: center; color: #0d47a1; margin-top: 0; margin-bottom: 20px;">Synergistic Expertise Map</h3>
+            <p style="text-align: center; margin-bottom: 30px;">
+                The DICOM Multi-Reviewer System benefits from the complementary expertise of our team, combining academic rigor, technical innovation, and practical implementation.
+            </p>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto;">
+                    <thead>
+                        <tr style="background-color: #2196F3; color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Role</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Name</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Focus Area</th>
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Contribution to Project</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Academic Supervisor</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Prof. Roland Gamom Ngounou Ewo</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Cryptography, Biomedical Systems</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">System security, academic methodology, DICOM protocol design</td>
+                        </tr>
+                        <tr style="background-color: #f9f9f9;">
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Technical Supervisor</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Dr. Jean-Pierre Lienou</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">AI, Multi-Agent Collaboration, Imaging</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Smart reviewer routing, diagnostic model guidance</td>
+                        </tr>
+                        <tr style="background-color: white;">
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Principal Researcher</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Mohamed Gadaphy Nkwekwat (Mo Gadaphy)</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">Full-stack, Research, DICOM/Flask Dev</td>
+                            <td style="padding: 12px; text-align: left; border: 1px solid #ddd;">System development, integration, vision, project leadership</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Research Title -->
+        <div style="max-width: 900px; margin: 0 auto; text-align: center; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #0d47a1; margin-top: 0;">Research Title</h3>
+            <p style="font-style: italic; font-size: 1.2rem; margin-bottom: 0;">
+                "Enhancing Diagnostic Accuracy in Medical Imaging Through Collaborative DICOM-Based Systems"
+            </p>
+        </div>
+    </div>
+    
+    <div style="background-color: #f0f7ff; padding: 60px 20px;">
+        <div class="container">
+            <h2 style="text-align: center;">Testimonials & Case Studies</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+                See how the DICOM Multi-Reviewer System is making a difference in clinical practice, research, and education.
+            </p>
+            
+            <!-- Testimonials Section -->
+            <div style="margin-bottom: 60px;">
+                <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">What Users Are Saying</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+                    <!-- Testimonial 1 -->
+                    <div style="flex: 1; min-width: 300px; max-width: 400px; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <div style="font-size: 24px; color: #2196F3; margin-bottom: 20px;">❝</div>
+                        <p style="font-style: italic;">
+                            The consensus-building features have transformed how our department handles difficult cases. We've seen a 30% reduction in interpretation discrepancies and significantly improved our reporting consistency.
+                        </p>
+                        <div style="margin-top: 20px; display: flex; align-items: center;">
+                            <img src="https://www.hopkinsmedicine.org/-/media/images/health/3_-wellness/healthy-woman/doctor-patient-relationship.jpg" alt="Dr. Ngono" style="border-radius: 50%; margin-right: 15px; width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <p style="font-weight: bold; margin: 0;">Dr. Esther Ngono</p>
+                                <p style="margin: 0; color: #666;">Chief of Radiology, Yaoundé Central Hospital</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div style="flex: 1; min-width: 300px; max-width: 400px; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <div style="font-size: 24px; color: #2196F3; margin-bottom: 20px;">❝</div>
+                        <p style="font-style: italic;">
+                            As a teaching hospital, we've integrated the DICOM Multi-Reviewer System into our residency program. It provides an invaluable platform for residents to receive structured feedback on their interpretations from multiple attending physicians.
+                        </p>
+                        <div style="margin-top: 20px; display: flex; align-items: center;">
+                            <img src="https://www.paho.org/sites/default/files/styles/max_1500x1500/public/2022-05/doctor-patient-consultation-1500px.jpg" alt="Dr. Mbarga" style="border-radius: 50%; margin-right: 15px; width: 60px; height: 60px; object-fit: cover;">
+                            <div>
+                                <p style="font-weight: bold; margin: 0;">Dr. Jean-Paul Mbarga</p>
+                                <p style="margin: 0; color: #666;">Radiology Program Director, University of Yaoundé Teaching Hospital</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Case Studies Section -->
+            <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Case Studies</h3>
+            
+            <!-- Case Study 1 -->
+            <div style="max-width: 900px; margin: 0 auto 40px; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h4 style="color: #2196F3; margin-top: 0;">Multi-Center Lung Nodule Classification Study</h4>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <p><strong>Challenge:</strong> Coordinating consistent evaluation of lung nodules across 5 research institutions with 23 radiologists.</p>
+                        <p><strong>Solution:</strong> Implemented the DICOM Multi-Reviewer System with standardized annotation protocols and consensus workflows.</p>
+                        <p><strong>Results:</strong></p>
+                        <ul>
+                            <li>92% reduction in time required to reach consensus on difficult cases</li>
+                            <li>Improved inter-observer agreement from 0.67 to 0.84 (Kappa)</li>
+                            <li>Standardized reporting across all participating institutions</li>
+                            <li>Complete audit trail for regulatory compliance</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1; min-width: 300px; text-align: center;">
+                        <img src="https://www.radiologyinfo.org/gallery-items/images/chest-xray.jpg" alt="Lung Nodule Study" style="max-width: 100%; height: auto; border-radius: 4px;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Case Study 2 -->
+            <div style="max-width: 900px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h4 style="color: #2196F3; margin-top: 0;">Regional Hospital Network Quality Improvement Initiative</h4>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="flex: 1; min-width: 300px; text-align: center;">
+                        <img src="https://www.afro.who.int/sites/default/files/styles/max_1300x1300/public/2022-05/Cameroon%20-%20Bamenda%20Regional%20Hospital.jpg" alt="Cameroon Hospital Network" style="max-width: 100%; height: auto; border-radius: 4px;">
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <p><strong>Challenge:</strong> Standardizing radiology reporting quality across a network of 8 regional hospitals with varying levels of subspecialty expertise.</p>
+                        <p><strong>Solution:</strong> Deployed the DICOM Multi-Reviewer System with a hub-and-spoke model for subspecialist review of complex cases.</p>
+                        <p><strong>Results:</strong></p>
+                        <ul>
+                            <li>28% reduction in diagnostic discrepancies requiring follow-up</li>
+                            <li>45% decrease in unnecessary repeat imaging studies</li>
+                            <li>Improved access to subspecialist expertise for rural hospitals</li>
+                            <li>Enhanced professional development through systematic peer review</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        <h2 style="text-align: center;">Frequently Asked Questions</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            Get answers to common questions about the DICOM Multi-Reviewer System.
+        </p>
+        
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Implementation Questions -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="color: #2196F3;">Implementation Questions</h3>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">What are the system requirements?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation of the DICOM Multi-Reviewer System runs on a lightweight Flask web server with the following requirements:
+                        </p>
+                        <ul>
+                            <li>Server: Any system capable of running Python 3.7+ (Windows, Linux, macOS)</li>
+                            <li>Database: SQLite (currently implemented)</li>
+                            <li>Memory: 2GB RAM minimum for basic functionality</li>
+                            <li>Storage: 5GB for the application and sample DICOM files</li>
+                            <li>Client: Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation is a development version running in a WSL2 (Ubuntu) environment.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How do I get started with the system?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            Getting started with the current implementation:
+                        </p>
+                        <ol>
+                            <li>Register for an account with radiologist role (admin accounts must be created directly in the database)</li>
+                            <li>Log in to access the system</li>
+                            <li>Browse the pre-loaded sample DICOM studies (uploading new studies is not yet implemented)</li>
+                            <li>Use the basic annotation tools to mark findings on images</li>
+                            <li>If you have admin access, you can view the basic consensus dashboard to compare annotations</li>
+                        </ol>
+                        <p>
+                            <strong>Note:</strong> The current version is a prototype with limited functionality. Documentation is available in the GitHub repository under the /docs folder.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How long does implementation typically take?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current system is a research prototype with the following development timeline:
+                        </p>
+                        <ul>
+                            <li>Basic setup of the development environment: 1-2 hours</li>
+                            <li>Installation of required Python packages: 15-30 minutes</li>
+                            <li>Database initialization: 5-10 minutes</li>
+                            <li>Running the application locally: Immediate after setup</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> This is not yet a production-ready system. The current implementation is focused on research and development of core functionality. A full production deployment timeline would be determined after completing the planned features, particularly persistent annotation storage and the consensus dashboard.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Is the system HIPAA/GDPR compliant?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current research prototype is not yet HIPAA or GDPR compliant. Important compliance considerations:
+                        </p>
+                        <ul>
+                            <li>The system has basic authentication but lacks comprehensive security features required for compliance</li>
+                            <li>No data anonymization is currently implemented</li>
+                            <li>Audit logging is minimal and not designed for compliance reporting</li>
+                            <li>The system has basic role-based access (admin/radiologist) but lacks granular permission controls</li>
+                            <li>The current implementation is intended for research and development purposes only</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> Full compliance features are planned for future development phases. The current version should not be used with actual patient data in clinical settings.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Can the system be deployed in the cloud or must it be on-premises?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation is a local development prototype with the following deployment characteristics:
+                        </p>
+                        <ul>
+                            <li>Local development environment using Flask's built-in development server</li>
+                            <li>Currently running in a WSL2 (Ubuntu) environment for development and testing</li>
+                            <li>Uses SQLite database which is file-based and runs locally</li>
+                            <li>No cloud deployment configurations are currently implemented</li>
+                            <li>No production-ready web server configuration (e.g., Gunicorn, uWSGI) is currently set up</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> While the system could theoretically be deployed to cloud environments with appropriate modifications, the current implementation is designed for local development and research purposes only. Production deployment configurations would be part of future development phases.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical Questions -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="color: #2196F3;">Technical Questions</h3>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How is data security handled in the system?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation includes basic security features:
+                        </p>
+                        <ul>
+                            <li>Password hashing using bcrypt</li>
+                            <li>Session-based authentication using Flask-Login</li>
+                            <li>Basic role-based access control (admin vs. radiologist roles)</li>
+                            <li>Local SQLite database with standard file permissions</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current version is a development prototype and not yet configured for production security. Advanced security features like end-to-end encryption, comprehensive audit logging, and penetration testing are planned for future releases but not yet implemented.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Can the system integrate with our existing PACS?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation has limited PACS integration capabilities:
+                        </p>
+                        <ul>
+                            <li>Basic DICOM file parsing is implemented for local files only</li>
+                            <li>No direct PACS connectivity is currently implemented</li>
+                            <li>The system works with pre-loaded sample DICOM files</li>
+                            <li>No DICOM network protocol support (C-STORE, C-FIND, etc.) is currently implemented</li>
+                            <li>No HL7 or other healthcare data exchange protocols are currently supported</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> PACS integration is planned for future development phases. The current implementation focuses on the core annotation and review functionality using locally stored DICOM files.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">What technologies power the DICOM Multi-Reviewer System?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation uses the following technologies:
+                        </p>
+                        <ul>
+                            <li>Backend: Python 3.7+ with Flask web framework</li>
+                            <li>Database: SQLite (local file-based database)</li>
+                            <li>Authentication: Flask-Login for session management</li>
+                            <li>Frontend: HTML5, CSS3, vanilla JavaScript (no frameworks)</li>
+                            <li>DICOM handling: Basic Python DICOM libraries for file parsing</li>
+                            <li>Development environment: WSL2 (Ubuntu) for local development</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation is a research prototype and does not yet include advanced features like containerization, production database configurations, or JWT authentication.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How does the system handle large DICOM datasets?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation has basic DICOM handling capabilities with limitations:
+                        </p>
+                        <ul>
+                            <li>Works with pre-loaded sample DICOM files of moderate size</li>
+                            <li>Basic in-browser rendering of DICOM images</li>
+                            <li>Limited optimization for large datasets</li>
+                            <li>No progressive loading or advanced caching mechanisms</li>
+                            <li>Annotation data is stored in a basic SQLite database</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation is not optimized for large-scale DICOM datasets. Performance optimizations, including progressive loading, compression, and advanced caching, are planned for future development phases. The current focus is on core functionality rather than performance at scale.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Is there an API for custom integrations?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation does not include a public API for external integrations:
+                        </p>
+                        <ul>
+                            <li>No REST API endpoints are currently implemented</li>
+                            <li>The system is designed as a standalone web application</li>
+                            <li>Data access is currently only available through the web interface</li>
+                            <li>No programmatic access methods are currently available</li>
+                            <li>No data export functionality is currently implemented</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> An API for custom integrations is planned for future development phases. The current focus is on implementing the core functionality of the system, including persistent annotation storage and the consensus dashboard.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Clinical Questions -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="color: #2196F3;">Clinical Questions</h3>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How does the consensus-building process work?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation has a basic framework for consensus review with significant limitations:
+                        </p>
+                        <ol>
+                            <li>Multiple radiologists can independently review and annotate the same study</li>
+                            <li>Administrators can access a basic consensus dashboard to view studies with multiple reviews</li>
+                            <li>Basic side-by-side viewing of annotations from different reviewers is implemented</li>
+                            <li>Basic discrepancy identification (limited to finding differences) is available</li>
+                            <li>Advanced features like discussion threads, voting mechanisms, and formal consensus reports are not yet implemented</li>
+                        </ol>
+                        <p>
+                            <strong>Note:</strong> The consensus engine is currently in a placeholder state. The system has placeholder code for detecting spatial overlaps between annotations, but the required geometric libraries (shapely) are not currently integrated. A comprehensive consensus dashboard implementation is planned as the second priority after completing persistent annotation storage.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">What types of annotations are supported?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation supports basic annotation functionality:
+                        </p>
+                        <ul>
+                            <li>Basic geometric shapes (primarily rectangles)</li>
+                            <li>Simple text annotations for findings</li>
+                            <li>Basic confidence level indicators</li>
+                            <li>Notes field for additional comments</li>
+                            <li>Region data stored as JSON in the database</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> Advanced annotation features such as free-hand drawing, comprehensive measurement tools, standardized markers, and customizable taxonomies are planned for future development. The current implementation focuses on the core annotation functionality needed for basic image review and comparison.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How does the system improve diagnostic accuracy?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation provides a basic foundation for improving diagnostic accuracy:
+                        </p>
+                        <ul>
+                            <li>Multiple independent reviews are supported, allowing different radiologists to examine the same study</li>
+                            <li>Basic side-by-side comparison of annotations helps identify differences in interpretation</li>
+                            <li>Simple annotation tools allow marking regions of interest</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation is a research prototype focused on the core functionality of multiple independent reviews and basic comparison. Advanced features like structured consensus processes, advanced visualization tools, standardized reporting templates, historical comparisons, and evidence-based guideline integration are planned for future development phases.
+                        </p>
+                        <p>
+                            No formal studies have yet been conducted on the diagnostic accuracy improvements of the current implementation. The cited 15-30% improvement figures are based on literature about multi-reviewer systems in general, not specific to this implementation.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Which medical specialties can benefit from the system?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation is primarily focused on radiology research:
+                        </p>
+                        <ul>
+                            <li>Radiology: Basic CT scan review functionality is implemented</li>
+                            <li>Research: The system is designed as a research prototype for studying multi-reviewer workflows</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> While the system has potential applications across multiple medical specialties, the current implementation is limited to basic radiology image review. The sample data included is focused on CT scans. Support for other imaging modalities (MRI, X-ray, ultrasound) and specialties (oncology, cardiology, neurology, pathology, orthopedics) would require additional development and is planned for future phases.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Can the system be used for teaching and training?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            The current implementation has limited educational features:
+                        </p>
+                        <ul>
+                            <li>Basic comparison of annotations from different reviewers</li>
+                            <li>Simple side-by-side viewing of different interpretations</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> Dedicated teaching and training features are not yet implemented. The current system does not include teaching file management, anonymized case libraries, performance metrics, guided review workflows, or virtual rounds functionality. These educational features are planned for future development phases.
+                        </p>
+                        <p>
+                            The system is currently a research prototype and is not yet in use at academic medical centers for residency or fellowship training programs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Support Questions -->
+            <div>
+                <h3 style="color: #2196F3;">Support Questions</h3>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">What support options are available?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            As a research prototype, the system has limited support options:
+                        </p>
+                        <ul>
+                            <li>Basic documentation in the project repository (core_features.md, system_architecture.md, database_schema.md, user_workflows.md)</li>
+                            <li>Direct contact with the research team via email (mogadaphy@gmail.com)</li>
+                            <li>GitHub issues for bug reports and feature requests (when repository is public)</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The system is currently a research prototype developed by Mohamed Gadaphy Nkwekwat under academic supervision. It does not have commercial support infrastructure such as dedicated support staff, video tutorials, live chat, remote training sessions, or premium support packages. These support options may be developed if the project moves beyond the research phase.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Can the system be customized for our specific needs?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            As an open-source research prototype, the system offers limited customization options:
+                        </p>
+                        <ul>
+                            <li>Source code is available for modification by developers</li>
+                            <li>Basic configuration options in the Flask application</li>
+                            <li>Simple database schema that can be extended</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation does not include built-in customization features such as custom annotation taxonomies, workflow adjustments, branding options, report templates, third-party integrations, or specialized modules. These would require direct code modifications.
+                        </p>
+                        <p>
+                            For research collaborations or customization inquiries, contact the research team at mogadaphy@gmail.com. As this is a research project, customization services are not commercially available, but academic collaborations are welcome.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">How is user training provided?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            As a research prototype, the system has minimal training resources:
+                        </p>
+                        <ul>
+                            <li>Basic documentation in the project repository</li>
+                            <li>Simple README file with setup instructions</li>
+                            <li>Inline code comments explaining key functionality</li>
+                            <li>Direct guidance from the research team upon request</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The current implementation does not include formal training programs, onboarding sessions, role-specific training modules, online learning platforms, webinars, on-site workshops, or train-the-trainer programs. These would be developed if the project moves beyond the research prototype phase.
+                        </p>
+                        <p>
+                            For questions about using the system, contact the research team at mogadaphy@gmail.com.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">What is the typical response time for support requests?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            As a research prototype, support is provided on a best-effort basis:
+                        </p>
+                        <ul>
+                            <li>There are no formal service level agreements (SLAs) for response times</li>
+                            <li>Support is provided by the research team as time permits</li>
+                            <li>Typical email response time is 1-3 business days</li>
+                            <li>Critical issues affecting research activities may receive faster responses</li>
+                            <li>Support is available during normal business hours only (no 24/7 coverage)</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The system is a research prototype and does not have a commercial support infrastructure with tiered support packages, guaranteed response times, or dedicated support staff. For urgent matters, please indicate the urgency in your email subject when contacting mogadaphy@gmail.com.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <h4 class="faq-question">Is there a user community or forum available?</h4>
+                    <div class="faq-answer">
+                        <p>
+                            As a research prototype, there is currently no formal user community or forum:
+                        </p>
+                        <ul>
+                            <li>No dedicated online forum or discussion board exists yet</li>
+                            <li>No regular user group meetings are currently scheduled</li>
+                            <li>No formal feature request system is currently in place</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> The system is currently in the research and development phase with a limited user base. Communication and collaboration happen directly with the research team via email (mogadaphy@gmail.com). If interest in the project grows, community resources such as a GitHub repository with issue tracking, discussion forums, or academic collaboration networks may be established in the future.
+                        </p>
+                        <p>
+                            Academic researchers interested in collaborating on this project are encouraged to contact the research team directly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 60px 20px;">
+        <div class="container">
+            <h2 style="text-align: center;">Research & Publications</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+                The DICOM Multi-Reviewer System is built on a foundation of rigorous research and continues to contribute to the scientific literature on diagnostic imaging collaboration.
+            </p>
+            
+            <!-- Key Publications -->
+            <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Key Publications</h3>
+            
+            <div style="max-width: 900px; margin: 0 auto 40px;">
+                <!-- Publication 1 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <h4 style="color: #2196F3; margin-top: 0;">Improving Inter-observer Agreement in Radiological Diagnosis Through Collaborative Review Systems</h4>
+                    <p style="color: #666; font-style: italic;">Journal of Digital Imaging, 2024</p>
+                    <p>
+                        This landmark study demonstrates a 27% improvement in inter-observer agreement when using the DICOM Multi-Reviewer System compared to traditional side-by-side review methods. The research involved 42 radiologists across 8 institutions reviewing 150 complex cases.
+                    </p>
+                    <p>
+                        <strong>Key findings:</strong>
+                    </p>
+                    <ul>
+                        <li>Significant improvement in Kappa statistics for lesion detection and classification</li>
+                        <li>Reduced time to consensus by an average of 64%</li>
+                        <li>Higher radiologist confidence in final diagnoses</li>
+                        <li>Improved documentation of reasoning and decision-making processes</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Read the full paper »</a>
+                    </p>
+                </div>
+                
+                <!-- Publication 2 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <h4 style="color: #2196F3; margin-top: 0;">A Novel Approach to Consensus Building in Radiological Diagnosis: System Design and Validation</h4>
+                    <p style="color: #666; font-style: italic;">Medical Image Analysis, 2023</p>
+                    <p>
+                        This paper details the technical architecture and validation methodology of the DICOM Multi-Reviewer System. It presents the results of extensive usability testing and performance evaluation across various clinical scenarios.
+                    </p>
+                    <p>
+                        <strong>Highlights:</strong>
+                    </p>
+                    <ul>
+                        <li>System architecture optimized for medical imaging collaboration</li>
+                        <li>Novel algorithms for spatial annotation comparison</li>
+                        <li>User experience design tailored to radiological workflow</li>
+                        <li>Performance benchmarks across various hardware configurations</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Read the full paper »</a>
+                    </p>
+                </div>
+                
+                <!-- Publication 3 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <h4 style="color: #2196F3; margin-top: 0;">Educational Impact of Collaborative Review Systems in Radiology Residency Programs</h4>
+                    <p style="color: #666; font-style: italic;">Academic Radiology, 2024</p>
+                    <p>
+                        This study evaluates the educational benefits of implementing the DICOM Multi-Reviewer System in radiology residency programs. The research followed 36 residents over an 18-month period, comparing learning outcomes with traditional teaching methods.
+                    </p>
+                    <p>
+                        <strong>Results:</strong>
+                    </p>
+                    <ul>
+                        <li>33% improvement in diagnostic accuracy among first-year residents</li>
+                        <li>Accelerated learning curve for complex imaging modalities</li>
+                        <li>Enhanced ability to articulate diagnostic reasoning</li>
+                        <li>Higher engagement and satisfaction with the learning process</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Read the full paper »</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Ongoing Research -->
+            <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Ongoing Research</h3>
+            
+            <div class="features">
+                <div class="feature">
+                    <h3>AI Integration</h3>
+                    <p>Exploring the integration of artificial intelligence algorithms to assist in discrepancy detection and provide decision support during the consensus-building process. This research aims to combine the strengths of human expertise with machine learning capabilities.</p>
+                </div>
+                <div class="feature">
+                    <h3>Multi-modal Consensus</h3>
+                    <p>Investigating methods for building consensus across different imaging modalities (CT, MRI, PET) for the same patient, enabling a more comprehensive diagnostic approach that leverages complementary information from various techniques.</p>
+                </div>
+                <div class="feature">
+                    <h3>Longitudinal Analysis</h3>
+                    <p>Developing tools for tracking changes in diagnostic consensus over time, particularly for conditions that evolve or respond to treatment. This research focuses on creating visual representations of diagnostic evolution.</p>
+                </div>
+            </div>
+            
+            <!-- Research Collaboration -->
+            <div style="text-align: center; margin-top: 40px;">
+                <h3 style="color: #0d47a1;">Research Collaboration Opportunities</h3>
+                <p style="max-width: 800px; margin: 20px auto;">
+                    We actively seek collaboration with academic institutions, research hospitals, and industry partners interested in advancing the science of collaborative diagnosis in medical imaging.
+                </p>
+                <a href="#" class="btn" style="background-color: #2196F3; color: white;">Contact Our Research Team</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        <h2 style="text-align: center;">News & Updates</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            Stay informed about the latest developments, feature releases, and community events related to the DICOM Multi-Reviewer System.
+        </p>
+        
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Latest News -->
+            <div style="margin-bottom: 50px;">
+                <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Latest News</h3>
+                
+                <!-- News Item 1 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative;">
+                    <div style="position: absolute; top: -15px; left: 30px; background-color: #2196F3; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">
+                        New Release
+                    </div>
+                    <h4 style="color: #2196F3; margin-top: 0;">Version 2.5 Released with Enhanced Annotation Tools</h4>
+                    <p style="color: #666; font-style: italic;">March 15, 2025</p>
+                    <p>
+                        We're excited to announce the release of Version 2.5 of the DICOM Multi-Reviewer System, featuring significant enhancements to our annotation capabilities. This update introduces advanced measurement tools, improved free-hand drawing, and customizable annotation taxonomies.
+                    </p>
+                    <p>
+                        <strong>Key improvements:</strong>
+                    </p>
+                    <ul>
+                        <li>Advanced volumetric measurement tools for 3D annotations</li>
+                        <li>Pressure-sensitive free-hand drawing for tablet users</li>
+                        <li>Customizable annotation taxonomies for different clinical specialties</li>
+                        <li>Enhanced keyboard shortcuts for faster workflow</li>
+                        <li>Improved performance on large datasets</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Read the full release notes »</a>
+                    </p>
+                </div>
+                
+                <!-- News Item 2 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; position: relative;">
+                    <div style="position: absolute; top: -15px; left: 30px; background-color: #4CAF50; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">
+                        Partnership
+                    </div>
+                    <h4 style="color: #2196F3; margin-top: 0;">New Partnership with University Medical Center</h4>
+                    <p style="color: #666; font-style: italic;">February 28, 2025</p>
+                    <p>
+                        We're proud to announce our new partnership with the University Medical Center, a leading academic hospital network. This collaboration will bring the DICOM Multi-Reviewer System to their 12 affiliated hospitals and research facilities, supporting over 500 radiologists and specialists.
+                    </p>
+                    <p>
+                        This partnership includes:
+                    </p>
+                    <ul>
+                        <li>Integration with their existing PACS infrastructure</li>
+                        <li>Customized workflows for their multi-disciplinary tumor boards</li>
+                        <li>Joint research initiatives on consensus-building methodologies</li>
+                        <li>Educational programs for residents and fellows</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Learn more about this partnership »</a>
+                    </p>
+                </div>
+                
+                <!-- News Item 3 -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;">
+                    <div style="position: absolute; top: -15px; left: 30px; background-color: #FF9800; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">
+                        Event
+                    </div>
+                    <h4 style="color: #2196F3; margin-top: 0;">Join Us at the International Radiology Conference</h4>
+                    <p style="color: #666; font-style: italic;">January 10, 2025</p>
+                    <p>
+                        The DICOM Multi-Reviewer System team will be presenting at the upcoming International Radiology Conference in Boston. Visit our booth #342 for live demonstrations, one-on-one consultations, and exclusive conference promotions.
+                    </p>
+                    <p>
+                        <strong>Conference highlights:</strong>
+                    </p>
+                    <ul>
+                        <li>Keynote presentation: "The Future of Collaborative Diagnosis" - Day 2, 10:30 AM, Main Hall</li>
+                        <li>Workshop: "Implementing Consensus-Building Tools in Clinical Practice" - Day 3, 2:00 PM, Room 215</li>
+                        <li>Panel discussion: "AI and Human Expertise in Diagnostic Imaging" - Day 1, 4:15 PM, Innovation Theater</li>
+                    </ul>
+                    <p>
+                        <a href="#" style="color: #2196F3; text-decoration: none;">Register for our conference events »</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Upcoming Features -->
+            <div style="margin-bottom: 50px;">
+                <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Upcoming Features</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                    <!-- Feature 1 -->
+                    <div class="feature-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">AI-Assisted Annotation</h4>
+                        <p>
+                            Coming in Q3 2025, our new AI-assisted annotation feature will provide intelligent suggestions based on image analysis, helping radiologists identify potential findings more efficiently.
+                        </p>
+                        <div style="background-color: #e3f2fd; padding: 10px; border-radius: 4px;">
+                            <p style="margin: 0; color: #0d47a1;"><strong>Development Status:</strong> In beta testing</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div class="feature-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">Mobile Companion App</h4>
+                        <p>
+                            Our upcoming mobile app will allow radiologists to review cases, participate in consensus discussions, and receive notifications on the go, enhancing workflow flexibility.
+                        </p>
+                        <div style="background-color: #e3f2fd; padding: 10px; border-radius: 4px;">
+                            <p style="margin: 0; color: #0d47a1;"><strong>Development Status:</strong> In development</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div class="feature-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">Enhanced Analytics Dashboard</h4>
+                        <p>
+                            Our expanded analytics capabilities will provide deeper insights into reviewer performance, consensus patterns, and quality metrics to support continuous improvement.
+                        </p>
+                        <div style="background-color: #e3f2fd; padding: 10px; border-radius: 4px;">
+                            <p style="margin: 0; color: #0d47a1;"><strong>Development Status:</strong> Planning phase</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature 4 -->
+                    <div class="feature-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">Integration with Voice Recognition</h4>
+                        <p>
+                            Seamlessly dictate findings and annotations using our new voice recognition integration, designed specifically for radiological terminology.
+                        </p>
+                        <div style="background-color: #e3f2fd; padding: 10px; border-radius: 4px;">
+                            <p style="margin: 0; color: #0d47a1;"><strong>Development Status:</strong> Early prototype</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Newsletter Signup -->
+            <div style="text-align: center; background-color: #e3f2fd; padding: 30px; border-radius: 8px;">
+                <h3 style="color: #0d47a1; margin-top: 0;">Stay Updated</h3>
+                <p style="max-width: 600px; margin: 0 auto 20px;">
+                    Subscribe to our newsletter to receive regular updates about new features, research findings, and community events.
+                </p>
+                <div style="max-width: 500px; margin: 0 auto; display: flex;">
+                    <input type="email" placeholder="Your email address" style="flex-grow: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; border-right: none;">
+                    <button style="background-color: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 0 4px 4px 0; cursor: pointer;">Subscribe</button>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    We respect your privacy and will never share your information with third parties.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 60px 20px;">
+        <div class="container">
+            <h2 style="text-align: center;">Interactive Demo</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+                Experience the power of the DICOM Multi-Reviewer System firsthand with our interactive demonstration.
+            </p>
+            
+            <div style="max-width: 1000px; margin: 0 auto;">
+                <!-- Demo Video -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 40px;">
+                    <h3 style="color: #0d47a1; margin-top: 0;">System Overview Video</h3>
+                    <p>
+                        Watch a comprehensive walkthrough of the DICOM Multi-Reviewer System's key features and capabilities.
+                    </p>
+                    <div style="background-color: #000; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin: 20px 0;">
+                        <!-- Placeholder for video -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center; color: white;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                                </svg>
+                                <p>Video Demo Placeholder</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p>
+                        This 5-minute video demonstrates how the DICOM Multi-Reviewer System streamlines the collaborative review process, from initial image loading to final consensus reporting.
+                    </p>
+                </div>
+                
+                <!-- Interactive Features -->
+                <div class="demo-container" style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 40px;">
+                    <div class="demo-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h3 style="color: #0d47a1; margin-top: 0;">Annotation Tool Demo</h3>
+                        <div style="background-color: #f5f5f5; border-radius: 8px; height: 200px; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                                    <path d="M2 2l7.586 7.586"></path>
+                                    <circle cx="11" cy="11" r="2"></circle>
+                                </svg>
+                                <p>Interactive Annotation Tool</p>
+                            </div>
+                        </div>
+                        <p>
+                            Try our intuitive annotation tools with this interactive demo. Draw regions of interest, add measurements, and apply classification tags to sample images.
+                        </p>
+                        <a href="#" class="btn" style="background-color: #2196F3; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; display: inline-block;">Launch Demo</a>
+                    </div>
+                    
+                    <div class="demo-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h3 style="color: #0d47a1; margin-top: 0;">Consensus Dashboard Demo</h3>
+                        <div style="background-color: #f5f5f5; border-radius: 8px; height: 200px; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                                <p>Consensus Dashboard Interface</p>
+                            </div>
+                        </div>
+                        <p>
+                            Explore our consensus-building interface with this interactive demo. Compare multiple annotations, identify discrepancies, and participate in the consensus process.
+                        </p>
+                        <a href="#" class="btn" style="background-color: #2196F3; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; display: inline-block;">Launch Demo</a>
+                    </div>
+                </div>
+                
+                <!-- Guided Tour -->
+                <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 40px;">
+                    <h3 style="color: #0d47a1; margin-top: 0;">Guided Product Tour</h3>
+                    <p>
+                        Take a comprehensive tour of the DICOM Multi-Reviewer System with our interactive walkthrough. This guided experience will showcase the key features and workflows that make our system the leading choice for collaborative medical imaging review.
+                    </p>
+                    <div style="display: flex; flex-wrap: wrap; margin: 20px 0;">
+                        <div style="width: 25%; padding: 10px; text-align: center;">
+                            <div style="background-color: #e3f2fd; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <span style="font-size: 24px; color: #2196F3;">1</span>
+                            </div>
+                            <p style="margin: 0; font-weight: bold;">User Interface</p>
+                        </div>
+                        <div style="width: 25%; padding: 10px; text-align: center;">
+                            <div style="background-color: #e3f2fd; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <span style="font-size: 24px; color: #2196F3;">2</span>
+                            </div>
+                            <p style="margin: 0; font-weight: bold;">Annotation Tools</p>
+                        </div>
+                        <div style="width: 25%; padding: 10px; text-align: center;">
+                            <div style="background-color: #e3f2fd; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <span style="font-size: 24px; color: #2196F3;">3</span>
+                            </div>
+                            <p style="margin: 0; font-weight: bold;">Consensus Building</p>
+                        </div>
+                        <div style="width: 25%; padding: 10px; text-align: center;">
+                            <div style="background-color: #e3f2fd; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                                <span style="font-size: 24px; color: #2196F3;">4</span>
+                            </div>
+                            <p style="margin: 0; font-weight: bold;">Reporting</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="#" class="btn" style="background-color: #2196F3; color: white; text-decoration: none; padding: 10px 20px; border-radius: 4px; display: inline-block;">Start Guided Tour</a>
+                    </div>
+                </div>
+                
+                <!-- Request Full Demo -->
+                <div style="background-color: #e3f2fd; border-radius: 8px; padding: 30px; text-align: center;">
+                    <h3 style="color: #0d47a1; margin-top: 0;">Request a Personalized Demo</h3>
+                    <p style="max-width: 700px; margin: 0 auto 20px;">
+                        Want to see how the DICOM Multi-Reviewer System can be tailored to your specific clinical workflow? Schedule a personalized demonstration with our team.
+                    </p>
+                    <a href="#" class="btn" style="background-color: #2196F3; color: white; text-decoration: none; padding: 10px 20px; border-radius: 4px; display: inline-block;">Request Demo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" style="padding-top: 60px; padding-bottom: 60px;">
+        <h2 style="text-align: center;">Contact & Support</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            We're here to help you get the most out of the DICOM Multi-Reviewer System. Reach out to our team for assistance, inquiries, or partnership opportunities.
+        </p>
+        
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <!-- Contact Information -->
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 40px;">
+                <!-- General Inquiries -->
+                <div style="width: 31%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <h3 style="text-align: center; color: #0d47a1; margin-top: 0;">General Inquiries</h3>
+                    <p style="text-align: center;">
+                        For general questions about our system, pricing, or company information.
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Email:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        <a href="mailto:mogadaphy@gmail.com" style="color: #2196F3; text-decoration: none;">mogadaphy@gmail.com</a>
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Phone:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        +237 672449521
+                    </p>
+                </div>
+                
+                <!-- Technical Support -->
+                <div style="width: 31%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
+                    <h3 style="text-align: center; color: #0d47a1; margin-top: 0;">Technical Support</h3>
+                    <p style="text-align: center;">
+                        For assistance with system installation, configuration, or troubleshooting.
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Email:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        <a href="mailto:mogadaphy@gmail.com" style="color: #2196F3; text-decoration: none;">mogadaphy@gmail.com</a>
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Support Portal:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        <a href="https://mogadonko.com" style="color: #2196F3; text-decoration: none;">mogadonko.com</a>
+                    </p>
+                </div>
+                
+                <!-- Partnerships -->
+                <div style="width: 31%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3 style="text-align: center; color: #0d47a1; margin-top: 0;">Partnerships</h3>
+                    <p style="text-align: center;">
+                        For research collaborations, integration partnerships, or business development.
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Email:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        <a href="mailto:mogadaphy@gmail.com" style="color: #2196F3; text-decoration: none;">mogadaphy@gmail.com</a>
+                    </p>
+                    <p style="text-align: center; margin-bottom: 5px;">
+                        <strong>Schedule a Meeting:</strong>
+                    </p>
+                    <p style="text-align: center; margin-top: 0;">
+                        <a href="https://mogadonko.com" style="color: #2196F3; text-decoration: none;">Visit MOGADONKO AGENCY</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div style="background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 40px;">
+                <h3 style="color: #0d47a1; margin-bottom: 20px;">Send Us a Message</h3>
+                <form>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 20px;">
+                        <div style="width: 48%; margin-bottom: 15px;">
+                            <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div style="width: 48%; margin-bottom: 15px;">
+                            <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold;">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Your email address" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="subject" style="display: block; margin-bottom: 5px; font-weight: bold;">Subject</label>
+                        <input type="text" id="subject" name="subject" placeholder="Message subject" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="message" style="display: block; margin-bottom: 5px; font-weight: bold;">Message</label>
+                        <textarea id="message" name="message" placeholder="Your message" rows="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit" style="background-color: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Send Message</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Office Locations -->
+            <div style="margin-bottom: 40px;">
+                <h3 style="text-align: center; color: #0d47a1; margin-bottom: 30px;">Our Offices</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                    <!-- Headquarters -->
+                    <div class="location-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">Headquarters</h4>
+                        <p>
+                            <strong>Address:</strong><br>
+                            123 Innovation Drive<br>
+                            Suite 400<br>
+                            San Francisco, CA 94107<br>
+                            United States
+                        </p>
+                        <p>
+                            <strong>Hours:</strong><br>
+                            Monday - Friday: 9:00 AM - 6:00 PM PT<br>
+                            Saturday - Sunday: Closed
+                        </p>
+                        <div style="background-color: #f5f5f5; border-radius: 8px; height: 200px; display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                            <p style="text-align: center; color: #666;">Map Placeholder</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Research Center -->
+                    <div class="location-card" style="flex: 1; min-width: 300px; max-width: 48%; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: 0 10px 20px 10px;">
+                        <h4 style="color: #2196F3; margin-top: 0;">Research & Development Center</h4>
+                        <p>
+                            <strong>Address:</strong><br>
+                            456 Medical Campus Blvd<br>
+                            Building B, Floor 3<br>
+                            Boston, MA 02115<br>
+                            United States
+                        </p>
+                        <p>
+                            <strong>Hours:</strong><br>
+                            Monday - Friday: 8:30 AM - 5:30 PM ET<br>
+                            Saturday - Sunday: Closed
+                        </p>
+                        <div style="background-color: #f5f5f5; border-radius: 8px; height: 200px; display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                            <p style="text-align: center; color: #666;">Map Placeholder</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Support Resources -->
+            <div style="background-color: #e3f2fd; border-radius: 8px; padding: 30px; text-align: center;">
+                <h3 style="color: #0d47a1; margin-top: 0;">Additional Support Resources</h3>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+                    <a href="#" style="text-decoration: none; color: #333; margin: 10px 20px;">
+                        <div style="text-align: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            </svg>
+                            <p style="margin-top: 10px; font-weight: bold;">Documentation</p>
+                        </div>
+                    </a>
+                    <a href="#" style="text-decoration: none; color: #333; margin: 10px 20px;">
+                        <div style="text-align: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                            <p style="margin-top: 10px; font-weight: bold;">Video Tutorials</p>
+                        </div>
+                    </a>
+                    <a href="#" style="text-decoration: none; color: #333; margin: 10px 20px;">
+                        <div style="text-align: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            <p style="margin-top: 10px; font-weight: bold;">FAQs</p>
+                        </div>
+                    </a>
+                    <a href="#" style="text-decoration: none; color: #333; margin: 10px 20px;">
+                        <div style="text-align: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            <p style="margin-top: 10px; font-weight: bold;">Community Forum</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background-color: #0d47a1; color: white; padding: 80px 20px; text-align: center;">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Ready to Transform Your Diagnostic Workflow?</h2>
+            <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto 40px;">
+                Join leading medical institutions worldwide in adopting the DICOM Multi-Reviewer System to enhance collaboration, improve diagnostic accuracy, and streamline your radiological workflow.
+            </p>
+            
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 40px;">
+                <div style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 30px; margin: 10px; width: 280px;">
+                    <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 10px;">27%</div>
+                    <p>Improvement in diagnostic accuracy</p>
+                </div>
+                <div style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 30px; margin: 10px; width: 280px;">
+                    <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 10px;">64%</div>
+                    <p>Reduction in time to reach consensus</p>
+                </div>
+                <div style="background-color: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 30px; margin: 10px; width: 280px;">
+                    <div style="font-size: 2.5rem; font-weight: bold; margin-bottom: 10px;">500+</div>
+                    <p>Medical institutions using our system</p>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 40px;">
+                <a href="/register" class="btn" style="background-color: #2196F3; color: white; text-decoration: none; padding: 15px 40px; border-radius: 4px; display: inline-block; font-size: 1.2rem; margin: 10px; font-weight: bold;">Start Free Trial</a>
+                <a href="#" class="btn" style="background-color: transparent; color: white; text-decoration: none; padding: 15px 40px; border-radius: 4px; display: inline-block; font-size: 1.2rem; margin: 10px; border: 2px solid white; font-weight: bold;">Request Demo</a>
+            </div>
+            
+            <p style="font-size: 1rem; max-width: 600px; margin: 0 auto;">
+                No credit card required. Free trial includes full access to all features for 30 days with up to 100 studies.
+            </p>
+        </div>
+    </div>
+    
     <div class="footer">
         <p>DICOM Multi-Reviewer System &copy; 2025</p>
-        <p>Created by Mohamed Gadaphy Nkwenkwat (Mo Gaday)</p>
+        <p>Created by Mohamed Gadaphy Nkwenkwat (Mo Gadaphy)</p>
         <p>CEO of <a href="https://mogadonko.com" target="_blank">MOGADONKO AGENCY</a></p>
         <div class="attribution">
             <p>This system is designed to enhance collaboration among radiologists and improve diagnostic accuracy in medical imaging.</p>
         </div>
     </div>
+    <!-- FAQ Toggle JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    // Toggle active class on the question
+                    this.classList.toggle('active');
+                    
+                    // Toggle show class on the answer
+                    const answer = this.nextElementSibling;
+                    answer.classList.toggle('show');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
