@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome - DICOM Multi-Reviewer System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .header-links a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #0d47a1, #42a5f5);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+        
+        .btn-container {
+            margin-top: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: white;
+            color: #2196F3;
+            padding: 12px 30px;
+            margin: 0 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .btn.secondary {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            flex: 1;
+            min-width: 300px;
+            max-width: 380px;
+            margin: 20px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .feature h3 {
+            color: #2196F3;
+            margin-top: 0;
+        }
+        
+        .impact {
+            background-color: #f0f7ff;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .impact h2 {
+            color: #0d47a1;
+            margin-top: 0;
+        }
+        
+        .impact-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #42a5f5;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .attribution {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DICOM Multi-Reviewer System</h1>
+        <div class="header-links">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        </div>
+    </div>
+    
+    <div class="hero">
+        <h1>DICOM Multi-Reviewer System</h1>
+        <p>A collaborative platform for radiologists to review, annotate, and build consensus on medical imaging studies</p>
+        <div class="btn-container">
+            <a href="{{ url_for('login') }}" class="btn">Login</a>
+            <a href="{{ url_for('register') }}" class="btn secondary">Register</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2 style="text-align: center;">About the System</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px;">
+            The DICOM Multi-Reviewer System is a specialized platform designed to enhance collaboration among radiologists
+            in the review and annotation of medical imaging studies. By facilitating multiple independent reviews and 
+            providing tools for consensus building, the system aims to improve diagnostic accuracy and consistency.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>Collaborative Review</h3>
+                <p>Enable multiple radiologists to independently review and annotate the same DICOM studies, creating a foundation for more accurate diagnoses.</p>
+            </div>
+            <div class="feature">
+                <h3>Annotation Tools</h3>
+                <p>Comprehensive tools for marking regions of interest, adding findings, and documenting observations directly on medical images.</p>
+            </div>
+            <div class="feature">
+                <h3>Consensus Building</h3>
+                <p>Compare annotations from multiple reviewers, identify discrepancies, and facilitate discussion to reach diagnostic consensus.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="impact">
+        <div class="impact-content">
+            <h2>Impact on Medical Imaging</h2>
+            <p>
+                The DICOM Multi-Reviewer System addresses critical challenges in medical imaging interpretation by:
+            </p>
+            <ul style="text-align: left; display: inline-block;">
+                <li>Reducing diagnostic errors through multiple independent reviews</li>
+                <li>Providing quantitative measures of inter-observer agreement</li>
+                <li>Creating a structured approach to resolving diagnostic discrepancies</li>
+                <li>Improving radiologist training through collaborative learning</li>
+                <li>Establishing a foundation for more consistent reporting standards</li>
+            </ul>
+            <p>
+                By bringing together multiple expert opinions in a systematic way, the system contributes to higher 
+                quality patient care and advances the field of diagnostic radiology.
+            </p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>DICOM Multi-Reviewer System &copy; 2025</p>
+        <p>Created by Mohamed Gadaphy Nkwenkwat (Mo Gaday)</p>
+        <p>CEO of <a href="https://mogadonko.com" target="_blank">MOGADONKO AGENCY</a></p>
+        <div class="attribution">
+            <p>This system is designed to enhance collaboration among radiologists and improve diagnostic accuracy in medical imaging.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -118,7 +118,7 @@ logger.info("Application initialized successfully")
 def hello_world():
     if current_user.is_authenticated:
         return redirect(url_for('dicom_list'))
-    return redirect(url_for('login'))
+    return render_template('welcome.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
